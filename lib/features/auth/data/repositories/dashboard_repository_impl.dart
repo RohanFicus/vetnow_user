@@ -5,6 +5,7 @@ import 'package:vetnow_user/features/auth/data/datasources/dashboard_remote_data
 import 'package:vetnow_user/features/auth/data/models/appointment_booking_response_model.dart';
 import 'package:vetnow_user/features/auth/data/models/assessment_response_model.dart';
 import 'package:vetnow_user/features/auth/data/models/assessment_success_model.dart';
+import 'package:vetnow_user/features/auth/data/models/available_slots_model.dart';
 import 'package:vetnow_user/features/auth/data/models/dashboard_response_model.dart';
 import 'package:vetnow_user/features/auth/data/models/symptoms_response_model.dart';
 import 'package:vetnow_user/features/auth/domain/entities/appointment_request.dart';
@@ -93,5 +94,17 @@ class DashboardRepositoryImpl implements DashboardRepository {
     await remoteDataSource.verifyPayment(paymentVerifyRequest);
     // Note: Ideally, after successful payment verification, 
     // we should trigger a dashboard refresh to update the local appointment status.
+  }
+
+  @override
+  Future<AvailableSlotsModel> getAvailableSlots({
+    required String doctorId,
+    required String date,
+  }) async {
+    final response = await remoteDataSource.getAvailableSlotsApi(
+      doctorId: doctorId,
+      date: date,
+    );
+    return response.data ?? AvailableSlotsModel();
   }
 }

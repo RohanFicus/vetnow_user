@@ -70,6 +70,22 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     _today = _dateOnly(DateTime.now());
     _selectedDate = _today;
     _visibleDateStart = _today;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchSlots();
+    });
+  }
+
+  void _fetchSlots() {
+    final state = context.read<DashboardBloc>().state;
+    final doctorId = state.doctorAvailability?.doctorId ??
+        state.doctorProfile?.doctorAvailabilityResponse?.doctorId ??
+        state.doctorProfile?.doctorId ??
+        "doc-001";
+    final date = DateFormat('yyyy-MM-dd').format(_selectedDate);
+    context.read<DashboardBloc>().add(
+          FetchAvailableSlotsEvent(doctorId: doctorId, date: date),
+        );
   }
 
   @override
@@ -217,6 +233,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                               _selectedDate = date;
                                               selectedTime = null;
                                             });
+                                            _fetchSlots();
                                           },
                                     child: Container(
                                       width: 50,
@@ -287,21 +304,14 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                               ),
                             ),
                             const SizedBox(height: 15),
-                            _slotCategory(
-                              "Morning Slots",
-                              morningSlots,
-                              Icons.wb_sunny_outlined,
-                            ),
-                            _slotCategory(
-                              "Afternoon Slots",
-                              afternoonSlots,
-                              Icons.light_mode_outlined,
-                            ),
-                            _slotCategory(
-                              "Evening Slots",
-                              eveningSlots,
-                              Icons.nights_stay_outlined,
-                            ),
+                            state.isLoading && state.availableSlots == null
+                                ? const Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(20.0),
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  )
+                                : _buildSlotsContent(state),
                             _buildSymptomsSection(state),
                             const SizedBox(height: 22),
                             _buildAdditionalNotesSection(),
@@ -563,7 +573,47 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     });
   }
 
+  Widget _buildSlotsContent(DashboardState state) {
+    final morning = state.availableSlots?.morning ?? [];
+    final afternoon = state.availableSlots?.afternoon ?? [];
+    final evening = state.availableSlots?.evening ?? [];
+
+    if (morning.isEmpty && afternoon.isEmpty && evening.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Center(
+          child: Text(
+            "No slots available for this date",
+            style: TextStyle(color: context.appMutedText),
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        _slotCategory(
+          "Morning Slots",
+          morning.map((e) => e.time ?? "").toList(),
+          Icons.wb_sunny_outlined,
+        ),
+        _slotCategory(
+          "Afternoon Slots",
+          afternoon.map((e) => e.time ?? "").toList(),
+          Icons.light_mode_outlined,
+        ),
+        _slotCategory(
+          "Evening Slots",
+          evening.map((e) => e.time ?? "").toList(),
+          Icons.nights_stay_outlined,
+        ),
+      ],
+    );
+  }
+
   Widget _slotCategory(String title, List<String> slots, IconData icon) {
+    if (slots.isEmpty) return const SizedBox.shrink();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

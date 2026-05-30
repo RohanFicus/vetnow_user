@@ -28,6 +28,23 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     on<BookAppointmentEvent>(_onBookAppointment);
     on<VerifyPaymentEvent>(_onVerifyPayment);
     on<FetchSymptomsEvent>(_onFetchSymptoms);
+    on<FetchAvailableSlotsEvent>(_onFetchAvailableSlots);
+  }
+
+  Future<void> _onFetchAvailableSlots(
+    FetchAvailableSlotsEvent event,
+    Emitter<DashboardState> emit,
+  ) async {
+    emit(state.copyWith(isLoading: true, error: null, availableSlots: null));
+    try {
+      final slots = await dashboardUseCase.getAvailableSlots(
+        doctorId: event.doctorId,
+        date: event.date,
+      );
+      emit(state.copyWith(isLoading: false, availableSlots: slots));
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, error: e.toString()));
+    }
   }
 
   Future<void> _onFetchSymptoms(

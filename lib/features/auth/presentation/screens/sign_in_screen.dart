@@ -58,6 +58,12 @@ class SignInScreen extends StatelessWidget {
                         child: Image.asset(
                           'assets/png/signup_bg.png',
                           fit: BoxFit.cover,
+                          color: Theme.of(context).brightness == Brightness.dark 
+                              ? Colors.black.withOpacity(0.6) 
+                              : null,
+                          colorBlendMode: Theme.of(context).brightness == Brightness.dark 
+                              ? BlendMode.darken 
+                              : null,
                         ),
                       ),
                       SafeArea(
@@ -92,7 +98,10 @@ class SignInScreen extends StatelessWidget {
                                           children: [
                                             Text(
                                               "Welcome to VetNow",
-                                              style: TextStyle(fontSize: 24),
+                                              style: TextStyle(
+                                                fontSize: 24,
+                                                color: Theme.of(context).colorScheme.onSurface,
+                                              ),
                                             ),
                                             SizedBox(
                                               width:
@@ -105,7 +114,7 @@ class SignInScreen extends StatelessWidget {
                                                 textAlign: TextAlign.center,
                                                 style: TextStyle(
                                                   fontSize: AppSizes.s14,
-                                                  color: AppColors.textGray,
+                                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                                                 ),
                                               ),
                                             ),

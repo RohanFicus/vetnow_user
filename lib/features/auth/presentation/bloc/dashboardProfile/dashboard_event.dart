@@ -122,3 +122,13 @@ class FetchSymptomsEvent extends DashboardEvent {
   @override
   List<Object?> get props => [speciesId];
 }
+
+class FetchAvailableSlotsEvent extends DashboardEvent {
+  final String doctorId;
+  final String date;
+
+  const FetchAvailableSlotsEvent({required this.doctorId, required this.date});
+
+  @override
+  List<Object?> get props => [doctorId, date];
+}

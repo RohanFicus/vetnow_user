@@ -122,7 +122,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             right: 0,
             child: Container(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
-              color: Colors.white, // Ensures background is white behind buttons
+              color: Theme.of(context).colorScheme.surface, // Ensures background adapts to theme
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -233,11 +233,11 @@ class OnboardingContent extends StatelessWidget {
                 Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 28,
                     height: 1.2,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0D1B2A), // Dark Navy/Black
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 16),

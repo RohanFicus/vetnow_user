@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:vetnow_user/features/auth/data/models/appointment_booking_response_model.dart';
 import 'package:vetnow_user/features/auth/data/models/assessment_response_model.dart';
 import 'package:vetnow_user/features/auth/data/models/assessment_success_model.dart';
+import 'package:vetnow_user/features/auth/data/models/available_slots_model.dart';
 import 'package:vetnow_user/features/auth/data/models/dashboard_response_model.dart';
 import 'package:vetnow_user/features/auth/data/models/symptoms_response_model.dart';
 import 'package:vetnow_user/features/auth/domain/entities/assessment_question_entity.dart';
@@ -11,6 +12,7 @@ class DashboardState extends Equatable {
   final List<Pets> pets;
   final List<AppointmentResponse> appointments; // ✅ ADDED
   final List<SymptomsResponseModel> symptomsList; // ✅ ADDED
+  final AvailableSlotsModel? availableSlots; // ✅ ADDED
 
   final DoctorProfileResponse? doctorProfile; // ✅ ADDED
   final DoctorAvailabilityResponse? doctorAvailability; // ✅ ADDED
@@ -39,6 +41,7 @@ class DashboardState extends Equatable {
     this.pets = const [],
     this.appointments = const [], // ✅
     this.symptomsList = const [], // ✅
+    this.availableSlots, // ✅
     this.doctorProfile, // ✅
     this.doctorAvailability,
     this.assessmentList = const [],
@@ -63,6 +66,7 @@ class DashboardState extends Equatable {
     pets: [],
     appointments: [], // ✅
     symptomsList: [], // ✅
+    availableSlots: null, // ✅
     doctorProfile: null, // ✅
     doctorAvailability: null,
     assessmentList: [],
@@ -87,6 +91,7 @@ class DashboardState extends Equatable {
     List<Pets>? pets,
     List<AppointmentResponse>? appointments, // ✅
     List<SymptomsResponseModel>? symptomsList, // ✅
+    AvailableSlotsModel? availableSlots, // ✅
     DoctorProfileResponse? doctorProfile, // ✅
     DoctorAvailabilityResponse? doctorAvailability,
 
@@ -114,6 +119,7 @@ class DashboardState extends Equatable {
       pets: pets ?? this.pets,
       appointments: appointments ?? this.appointments, // ✅
       symptomsList: symptomsList ?? this.symptomsList, // ✅
+      availableSlots: availableSlots ?? this.availableSlots, // ✅
       doctorProfile: doctorProfile ?? this.doctorProfile, // ✅
       doctorAvailability: doctorAvailability ?? this.doctorAvailability,
 
@@ -145,6 +151,7 @@ class DashboardState extends Equatable {
     pets,
     appointments,
     symptomsList,
+    availableSlots, // ✅
     doctorProfile, // ✅ IMPORTANT
     doctorAvailability,
 

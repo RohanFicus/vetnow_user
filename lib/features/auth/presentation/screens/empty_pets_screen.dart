@@ -34,27 +34,25 @@ class EmptyPetsScreen extends StatelessWidget {
         },
         builder: (context, state) {
           return Scaffold(
-            backgroundColor: const Color(0xFFF8FAFC),
-            // Ultra light slate background
             body: Stack(
               children: [
                 // 1. Modern Header with Gradient and Decorative Paws
-                _buildHeaderBackground(),
+                _buildHeaderBackground(context),
 
                 SafeArea(
                   child: Column(
                     children: [
                       const SizedBox(height: 30),
-                      _buildHeroSection(),
+                      _buildHeroSection(context),
                       const SizedBox(height: 20),
 
                       // 2. Selection Area
                       Expanded(
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.vertical(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surface,
+                            borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(40),
                             ),
                           ),
@@ -64,7 +62,7 @@ class EmptyPetsScreen extends StatelessWidget {
                               _buildDragHandle(),
                               // Decorative handle
                               const SizedBox(height: 20),
-                              _buildTitleSection(),
+                              _buildTitleSection(context),
 
                               Expanded(
                                 child: state.isLoading
@@ -85,7 +83,7 @@ class EmptyPetsScreen extends StatelessWidget {
                 ),
 
                 // 3. Floating Bottom Button
-                _buildFloatingButton(state),
+                _buildFloatingButton(context, state),
               ],
             ),
           );
@@ -94,14 +92,17 @@ class EmptyPetsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderBackground() {
+  Widget _buildHeaderBackground(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       height: 350,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Color(0xFFE0F2FE), Color(0xFFF8FAFC)],
+          colors: isDark 
+              ? [const Color(0xFF0B1020), const Color(0xFF101827)]
+              : [const Color(0xFFE0F2FE), const Color(0xFFF8FAFC)],
         ),
       ),
       child: Stack(
@@ -121,14 +122,14 @@ class EmptyPetsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeroSection() {
+  Widget _buildHeroSection(BuildContext context) {
     return Column(
       children: [
         Container(
           height: 100,
           width: 100,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.surface,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
@@ -143,12 +144,12 @@ class EmptyPetsScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-        const Text(
+        Text(
           "No Pets Found",
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.w900,
-            color: Color(0xFF1E293B),
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 8),
@@ -160,15 +161,15 @@ class EmptyPetsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTitleSection() {
-    return const Row(
+  Widget _buildTitleSection(BuildContext context) {
+    return Row(
       children: [
         Text(
           "Choose your pet type",
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF334155),
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         Spacer(),
@@ -206,12 +207,18 @@ class EmptyPetsScreen extends StatelessWidget {
             duration: const Duration(milliseconds: 200),
             child: Container(
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFFF0F7FF) : Colors.white,
+                color: isSelected 
+                    ? (Theme.of(context).brightness == Brightness.dark 
+                        ? const Color(0xFF1E293B) 
+                        : const Color(0xFFF0F7FF))
+                    : Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
                   color: isSelected
                       ? const Color(0xFF0061CE)
-                      : Colors.grey.shade200,
+                      : (Theme.of(context).brightness == Brightness.dark 
+                          ? const Color(0xFF2D3748) 
+                          : Colors.grey.shade200),
                   width: 2,
                 ),
                 boxShadow: [
@@ -234,8 +241,8 @@ class EmptyPetsScreen extends StatelessWidget {
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? Colors.white
-                                : const Color(0xFFF1F5F9),
+                                ? (Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2D3748) : Colors.white)
+                                : (Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9)),
                             shape: BoxShape.circle,
                           ),
                           child: ClipOval(
@@ -259,7 +266,7 @@ class EmptyPetsScreen extends StatelessWidget {
                                 : FontWeight.w500,
                             color: isSelected
                                 ? const Color(0xFF0061CE)
-                                : const Color(0xFF64748B),
+                                : Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                           ),
                         ),
                       ],
@@ -284,7 +291,7 @@ class EmptyPetsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFloatingButton(ProfileState state) {
+  Widget _buildFloatingButton(BuildContext context, ProfileState state) {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Container(
@@ -294,7 +301,11 @@ class EmptyPetsScreen extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.white.withOpacity(0), Colors.white, Colors.white],
+            colors: [
+              Theme.of(context).colorScheme.surface.withOpacity(0),
+              Theme.of(context).colorScheme.surface,
+              Theme.of(context).colorScheme.surface
+            ],
           ),
         ),
         padding: const EdgeInsets.all(24),

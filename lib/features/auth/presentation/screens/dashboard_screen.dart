@@ -276,7 +276,7 @@ class _MainDashboardState extends State<MainDashboard> {
                     );
                   },
                 ),
-                const SizedBox(height: 16),
+                /*const SizedBox(height: 16),
                 _buildActionTile(
                   sheetContext,
                   title: "Daily Activity",
@@ -307,7 +307,7 @@ class _MainDashboardState extends State<MainDashboard> {
                     Navigator.pop(sheetContext);
                     setState(() => _selectedIndex = 1);
                   },
-                ),
+                ),*/
               ],
             ),
           ),

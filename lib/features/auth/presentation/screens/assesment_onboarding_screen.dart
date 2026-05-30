@@ -71,7 +71,7 @@ class AssesmentOnboardingScreen extends StatelessWidget {
                       margin: const EdgeInsets.all(12),
                       padding: const EdgeInsets.fromLTRB(24, 32, 24, 20),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(32),
                         boxShadow: [
                           BoxShadow(
@@ -87,7 +87,7 @@ class AssesmentOnboardingScreen extends StatelessWidget {
                           Text(
                             "Hey, ${state.firstName} ${state.lastName}",
                             style: TextStyle(
-                              color: Color(0xFF8E8E93),
+                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                               fontSize: 16,
                             ),
                           ),
@@ -98,7 +98,7 @@ class AssesmentOnboardingScreen extends StatelessWidget {
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
                               height: 1.2,
-                              color: Color(0xFF1C1C1E),
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 32),
@@ -243,17 +243,17 @@ class _FeatureItem extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1C1C1E),
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: const TextStyle(
-                    color: Color(0xFF636366),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                     fontSize: 14,
                     height: 1.3,
                   ),

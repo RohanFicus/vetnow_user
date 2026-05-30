@@ -75,8 +75,11 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                           shape: BoxShape.circle,
                         ),
                         child: IconButton(
-                          icon: const Icon(Icons.arrow_back_ios_new, size: 18),
-                          color: Colors.black87,
+                          icon: Icon(
+                            Icons.arrow_back_ios_new, 
+                            size: 18,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                           onPressed: () {
                             Navigator.pop(context);
                           },
@@ -85,12 +88,12 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                       const SizedBox(height: 24),
 
                       // 2. Title & Subtitle
-                      const Text(
+                      Text(
                         "Create Your Profile",
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -98,7 +101,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                         "Your details help us personalize care for your pets.",
                         style: TextStyle(
                           fontSize: 16,
-                          color: Colors.grey.shade600,
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                           height: 1.4,
                         ),
                       ),

@@ -95,4 +95,8 @@ Future<void> initDependencies() async {
   sl.registerFactory<DashboardBloc>(
     () => DashboardBloc(sl<DashboardUseCase>(), sl<SecureStorageService>()),
   );
+
+  sl.registerFactory<OwnerProfileBloc>(
+    () => OwnerProfileBloc(sl<OwnerProfileUseCase>(), sl<SecureStorageService>()),
+  );
 }

@@ -24,13 +24,13 @@ class OtpScreen extends StatelessWidget {
     final defaultPinTheme = PinTheme(
       width: 50,
       height: 50,
-      textStyle: const TextStyle(
+      textStyle: TextStyle(
         fontSize: 22,
-        color: Colors.black,
+        color: Theme.of(context).colorScheme.onSurface,
         fontWeight: FontWeight.w600,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(12),
       ),
@@ -68,47 +68,43 @@ class OtpScreen extends StatelessWidget {
         child: BlocBuilder<OtpBloc, OtpState>(
           builder: (context, state) {
             return Scaffold(
-              backgroundColor: Colors.white,
-              appBar: AppBar(
-                backgroundColor: Colors.white,
-                elevation: 0,
-                leading: Padding(
-                  padding: const EdgeInsets.only(left: 16.0),
-                  child: Container(
-                    margin: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.arrow_back_ios_new,
-                        size: 16,
-                        color: Colors.black,
-                      ),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      padding: EdgeInsets.zero,
-                    ),
-                  ),
-                ),
-              ),
               body: SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16.0),
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.arrow_back_ios_new,
+                              size: 16,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            padding: EdgeInsets.zero,
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 20),
 
                       // 2. Title
-                      const Text(
+                      Text(
                         "Enter the OTP",
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -117,7 +113,7 @@ class OtpScreen extends StatelessWidget {
                       RichText(
                         text: TextSpan(
                           text: "we sent a verification code on your number\n",
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16,
                             color: Colors.grey,
                             height: 1.5,
@@ -126,7 +122,7 @@ class OtpScreen extends StatelessWidget {
                             TextSpan(
                               text: number,
                               style: TextStyle(
-                                color: Colors.black,
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -145,7 +141,7 @@ class OtpScreen extends StatelessWidget {
                           // Style when a box is focused
                           focusedPinTheme: defaultPinTheme.copyWith(
                             decoration: defaultPinTheme.decoration!.copyWith(
-                              border: Border.all(color: Colors.black),
+                              border: Border.all(color: Theme.of(context).colorScheme.primary),
                             ),
                           ),
                           // The hyphen placeholder

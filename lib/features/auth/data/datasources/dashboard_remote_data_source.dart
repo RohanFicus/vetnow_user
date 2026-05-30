@@ -5,6 +5,7 @@ import 'package:vetnow_user/core/network/api_response_handler.dart';
 import 'package:vetnow_user/features/auth/data/models/appointment_booking_response_model.dart';
 import 'package:vetnow_user/features/auth/data/models/assessment_response_model.dart';
 import 'package:vetnow_user/features/auth/data/models/assessment_success_model.dart';
+import 'package:vetnow_user/features/auth/data/models/available_slots_model.dart';
 import 'package:vetnow_user/features/auth/data/models/dashboard_response_model.dart';
 import 'package:vetnow_user/features/auth/data/models/symptoms_response_model.dart';
 import 'package:vetnow_user/features/auth/domain/entities/appointment_request.dart';
@@ -35,6 +36,11 @@ abstract class DashboardRemoteDataSource {
   Future<ApiResponse<void, void>> verifyPayment(
     PaymentVerifyRequest paymentVerifyRequest,
   );
+
+  Future<ApiResponse<AvailableSlotsModel, void>> getAvailableSlotsApi({
+    required String doctorId,
+    required String date,
+  });
 }
 
 class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
@@ -45,10 +51,10 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
   @override
   Future<ApiResponse<DashBoardResponseModal, void>> getDashboardApi() async {
     try {
-      final response = await client.dio.get("/api/v1/pet-owner/dashboard");
+      final response = await client.dio.get("/api/v1/app/dashboard");
       return ApiResponseHandler.handleResponse(
         response,
-        (json) => DashBoardResponseModal.fromJson(json),
+            (json) => DashBoardResponseModal.fromJson(json),
         null,
       );
     } catch (e) {
@@ -70,9 +76,10 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
 
       return ApiResponseHandler.handleResponse(
         response,
-        (json) => (json as List)
-            .map((e) => AssessmentResponseModel.fromJson(e))
-            .toList(),
+            (json) =>
+            (json as List)
+                .map((e) => AssessmentResponseModel.fromJson(e))
+                .toList(),
         null,
       );
     } catch (e) {
@@ -95,9 +102,10 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
       );
       return ApiResponseHandler.handleResponse(
         response,
-        (json) => (json as List)
-            .map((e) => SymptomsResponseModel.fromJson(e))
-            .toList(),
+            (json) =>
+            (json as List)
+                .map((e) => SymptomsResponseModel.fromJson(e))
+                .toList(),
         null,
       );
     } catch (e) {
@@ -111,8 +119,7 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
 
   @override
   Future<ApiResponse<AssessmentSuccessModel, void>> submitAnswers(
-    AssessmentRequest? assessmentRequest,
-  ) async {
+      AssessmentRequest? assessmentRequest,) async {
     try {
       final response = await client.dio.post(
         "/api/v1/pet-health/assessments",
@@ -121,22 +128,22 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
 
       return ApiResponseHandler.handleResponse(
         response,
-        (json) => AssessmentSuccessModel.fromJson(json),
+            (json) => AssessmentSuccessModel.fromJson(json),
         null,
       );
     } catch (e) {
       return ApiResponse(
         status: true,
         message: 'Success (Mock)',
-        data: MockData.assessmentSuccess(petId: assessmentRequest?.petId ?? 'pet-001'),
+        data: MockData.assessmentSuccess(
+            petId: assessmentRequest?.petId ?? 'pet-001'),
       );
     }
   }
 
   @override
   Future<ApiResponse<AppointmentBookingResponseModel, void>> bookAppointment(
-    AppointmentRequest appointmentRequest,
-  ) async {
+      AppointmentRequest appointmentRequest,) async {
     try {
       final Map<String, dynamic> data = appointmentRequest.toJson();
       debugPrint("API REQUEST: /api/v1/pet-owner/appointments - DATA: $data");
@@ -144,7 +151,10 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
       if (appointmentRequest.attachments != null) {
         data['attachments'] = await MultipartFile.fromFile(
           appointmentRequest.attachments!.path,
-          filename: appointmentRequest.attachments!.path.split('/').last,
+          filename: appointmentRequest.attachments!
+              .path
+              .split('/')
+              .last,
         );
       }
 
@@ -157,7 +167,7 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
 
       return ApiResponseHandler.handleResponse(
         response,
-        (json) => AppointmentBookingResponseModel.fromJson(json),
+            (json) => AppointmentBookingResponseModel.fromJson(json),
         null,
       );
     } catch (e) {
@@ -165,8 +175,12 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
         status: true,
         message: 'Success (Mock)',
         data: AppointmentBookingResponseModel(
-          appointmentId: "APT-${DateTime.now().millisecondsSinceEpoch}",
-          paymentOrderId: "order_demo_${DateTime.now().millisecondsSinceEpoch}",
+          appointmentId: "APT-${DateTime
+              .now()
+              .millisecondsSinceEpoch}",
+          paymentOrderId: "order_demo_${DateTime
+              .now()
+              .millisecondsSinceEpoch}",
           amount: 110000, // 1100 in paise
         ),
       );
@@ -175,8 +189,7 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
 
   @override
   Future<ApiResponse<void, void>> verifyPayment(
-    PaymentVerifyRequest paymentVerifyRequest,
-  ) async {
+      PaymentVerifyRequest paymentVerifyRequest,) async {
     try {
       final response = await client.dio.post(
         "/api/v1/payments/verify",
@@ -191,4 +204,25 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
       );
     }
   }
-}
+    @override
+    Future<ApiResponse<AvailableSlotsModel, void>> getAvailableSlotsApi({
+      required String doctorId,
+      required String date,
+    }) async {
+      try {
+        final response = await client.dio.get(
+          "/api/v1/pet-owner/$doctorId/available-slots",
+          queryParameters: {'date': date},
+        );
+        return ApiResponseHandler.handleResponse(
+          response,
+              (json) => AvailableSlotsModel.fromJson(json),
+          null,
+        );
+      } catch (e) {
+        // For now, return error or mock if needed. User didn't provide mock data but the structure.
+        rethrow;
+      }
+    }
+  }
+
