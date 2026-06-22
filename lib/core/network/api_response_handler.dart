@@ -26,9 +26,15 @@ class ApiResponseHandler {
     }
 
     // HTTP client error (400–499)
-    final message = response.data is Map<String, dynamic>
-        ? response.data['message'] ?? 'Bad Request'
-        : 'Bad Request';
+    String message = 'Bad Request';
+    if (response.data is Map<String, dynamic>) {
+      final data = response.data as Map<String, dynamic>;
+      if (data['error'] != null && data['error']['message'] != null) {
+        message = data['error']['message'];
+      } else {
+        message = data['message'] ?? 'Bad Request';
+      }
+    }
 
     throw ApiException(message, statusCode);
   }

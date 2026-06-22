@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -290,6 +291,9 @@ class _AddPetWizardScreenState extends State<AddPetWizardScreen> {
         listener: (context, state) {
           print("Step Success ${state.breedsEntityList}");
           if (state.error != null) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.error!)));
             if (state.error == "ACCESS_TOKEN_EXPIRED") {
               Navigator.push(
                 context,
@@ -375,11 +379,7 @@ class _AddPetWizardScreenState extends State<AddPetWizardScreen> {
       elevation: 0,
       centerTitle: true,
       leading: IconButton(
-        icon: Icon(
-          Icons.arrow_back_ios_new,
-          size: 18,
-          color: context.appText,
-        ),
+        icon: Icon(Icons.arrow_back_ios_new, size: 18, color: context.appText),
         onPressed: _prevPage,
       ),
       title: Column(
@@ -411,9 +411,7 @@ class _AddPetWizardScreenState extends State<AddPetWizardScreen> {
           height: 6,
           width: isActive ? 24 : 6,
           decoration: BoxDecoration(
-            color: isActive || isDone
-                ? AppColors.primary
-                : context.appBorder,
+            color: isActive || isDone ? AppColors.primary : context.appBorder,
             borderRadius: BorderRadius.circular(10),
           ),
         );
@@ -606,7 +604,7 @@ class Step1BasicDetails extends StatelessWidget {
               const SizedBox(height: 10),
 
               // --- Breed Selection ---
-             existing == false
+              existing == false
                   ? CustomDropdown(
                       label: "Breed",
                       hint: "Select breed",
@@ -766,9 +764,19 @@ class Step1BasicDetails extends StatelessWidget {
   }) {
     return Row(
       children: [
-        _selectableButton(context, "YES", isSelected == true, () => onTap(true)),
+        _selectableButton(
+          context,
+          "YES",
+          isSelected == true,
+          () => onTap(true),
+        ),
         const SizedBox(width: 15),
-        _selectableButton(context, "NO", isSelected == false, () => onTap(false)),
+        _selectableButton(
+          context,
+          "NO",
+          isSelected == false,
+          () => onTap(false),
+        ),
       ],
     );
   }
@@ -787,7 +795,12 @@ class Step1BasicDetails extends StatelessWidget {
     );
   }
 
-  Widget _selectableButton(BuildContext context, String label, bool isActive, VoidCallback onTap) {
+  Widget _selectableButton(
+    BuildContext context,
+    String label,
+    bool isActive,
+    VoidCallback onTap,
+  ) {
     return Expanded(
       child: InkWell(
         onTap: onTap,
@@ -1131,7 +1144,10 @@ class Step3MedicalDetails extends StatelessWidget {
                         child: Row(
                           children: [
                             hasFile == true
-                                ? const Icon(Icons.description, color: Colors.blue)
+                                ? const Icon(
+                                    Icons.description,
+                                    color: Colors.blue,
+                                  )
                                 : const SizedBox(),
                             const SizedBox(width: 12),
                             Expanded(

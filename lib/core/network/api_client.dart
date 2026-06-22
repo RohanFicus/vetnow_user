@@ -11,7 +11,7 @@ class ApiClient {
     final storage = SecureStorageService();
     dio = Dio(
       BaseOptions(
-        baseUrl: "https://gwen-postmycotic-overtrustfully.ngrok-free.dev/",
+        baseUrl: "https://vetnow.rootficus.in/",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: {"Content-Type": "application/json"},

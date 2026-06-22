@@ -46,7 +46,10 @@ class EditPetProfileScreen extends StatelessWidget {
       create: (_) {
         final bloc = ProfileBloc(
           ProfileUseCase(
-            ProfileRepositoryImpl(ProfileRemoteDataSourceImpl(ApiClient()), SecureStorageService()),
+            ProfileRepositoryImpl(
+              ProfileRemoteDataSourceImpl(ApiClient()),
+              SecureStorageService(),
+            ),
           ),
           SecureStorageService(),
         )..add(ProfileCallLocally());
@@ -127,7 +130,8 @@ class EditPetProfileScreen extends StatelessWidget {
   }
 
   Widget _buildProfileImage() {
-    final profileImage = (pet.profile?.qrCodeFileName != null &&
+    final profileImage =
+        (pet.profile?.qrCodeFileName != null &&
             pet.profile!.qrCodeFileName!.startsWith('http'))
         ? pet.profile!.qrCodeFileName!
         : PetUtils.getSpeciesImage(pet.profile?.speciesName);
@@ -327,32 +331,25 @@ class EditPetProfileScreen extends StatelessWidget {
 
           onChanged: (vaccine) {
             if (vaccine == null) return;
-            context.read<ProfileBloc>().add(
-              VaccineSelected(vaccine),
-            );
+            context.read<ProfileBloc>().add(VaccineSelected(vaccine));
           },
         ),
       const SizedBox(height: 12),
       state.vaccineList.isNotEmpty
           ? SizedBox(
-        height: state.vaccineList.length == 1
-            ? MediaQuery.of(context).size.height * 0.25
-            : MediaQuery.of(context).size.height * 0.5,
-        width: MediaQuery.of(context).size.width,
-        child: ListView.builder(
-          scrollDirection: Axis.vertical,
-          itemCount: state.vaccineList.length,
-          itemBuilder: (context, index) {
-            final vaccine = state.vaccineList[index];
-            return _buildVaccineItem(
-              context,
-              vaccine,
-              state,
-              index,
-            );
-          },
-        ),
-      )
+              height: state.vaccineList.length == 1
+                  ? MediaQuery.of(context).size.height * 0.25
+                  : MediaQuery.of(context).size.height * 0.5,
+              width: MediaQuery.of(context).size.width,
+              child: ListView.builder(
+                scrollDirection: Axis.vertical,
+                itemCount: state.vaccineList.length,
+                itemBuilder: (context, index) {
+                  final vaccine = state.vaccineList[index];
+                  return _buildVaccineItem(context, vaccine, state, index);
+                },
+              ),
+            )
           : SizedBox(),
       Wrap(
         spacing: 10,
@@ -366,10 +363,7 @@ class EditPetProfileScreen extends StatelessWidget {
         alignment: Alignment.centerLeft,
         child: Text(
           "Medical Records (Optional)",
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-            color: context.appText,
-          ),
+          style: TextStyle(fontWeight: FontWeight.w500, color: context.appText),
         ),
       ),
       const SizedBox(height: 8),
@@ -418,9 +412,19 @@ class EditPetProfileScreen extends StatelessWidget {
   }) {
     return Row(
       children: [
-        _selectableButton(context, "YES", isSelected == true, () => onTap(true)),
+        _selectableButton(
+          context,
+          "YES",
+          isSelected == true,
+          () => onTap(true),
+        ),
         const SizedBox(width: 15),
-        _selectableButton(context, "NO", isSelected == false, () => onTap(false)),
+        _selectableButton(
+          context,
+          "NO",
+          isSelected == false,
+          () => onTap(false),
+        ),
       ],
     );
   }
@@ -502,13 +506,12 @@ class EditPetProfileScreen extends StatelessWidget {
     );
   }
 
-
   Widget _buildSpayedToggle(
-      BuildContext context,
-      ProfileState state,
-      int index,
-      VaccineEntity vaccine,
-      ) {
+    BuildContext context,
+    ProfileState state,
+    int index,
+    VaccineEntity vaccine,
+  ) {
     return Row(
       children: [
         _spayedButton("YES", context, state, index, vaccine),
@@ -532,8 +535,8 @@ class EditPetProfileScreen extends StatelessWidget {
       child: InkWell(
         onTap: () => {
           context.read<ProfileBloc>().add(
-                VaccineStatusChanged(index: index, status: type),
-              ),
+            VaccineStatusChanged(index: index, status: type),
+          ),
         },
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 5),
@@ -616,8 +619,11 @@ class EditPetProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _inputLabel(BuildContext context, String label,
-      {bool isNonEditable = false}) {
+  Widget _inputLabel(
+    BuildContext context,
+    String label, {
+    bool isNonEditable = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6.0),
       child: RichText(

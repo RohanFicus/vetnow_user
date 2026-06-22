@@ -44,6 +44,20 @@ class OtpScreen extends StatelessWidget {
             previous.otpVerifyEntity != current.otpVerifyEntity ||
             previous.error != current.error,
         listener: (context, state) {
+          if (state.error != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.error!),
+                backgroundColor: Colors.red,
+                behavior: SnackBarBehavior.floating,
+                margin: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                  left: 20,
+                  right: 20,
+                ),
+              ),
+            );
+          }
           final entity = state.otpVerifyEntity;
 
           if (!state.isLoading && state.isComplete && entity != null) {
@@ -141,7 +155,9 @@ class OtpScreen extends StatelessWidget {
                           // Style when a box is focused
                           focusedPinTheme: defaultPinTheme.copyWith(
                             decoration: defaultPinTheme.decoration!.copyWith(
-                              border: Border.all(color: Theme.of(context).colorScheme.primary),
+                              border: Border.all(
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                             ),
                           ),
                           // The hyphen placeholder

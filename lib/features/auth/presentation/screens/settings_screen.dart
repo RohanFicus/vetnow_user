@@ -16,7 +16,6 @@ import '../../../../core/theme/app_color.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/theme/theme_notifier.dart';
 import '../components/AppButton.dart';
-import './bookings_screen.dart';
 import './edit_profile_screen.dart';
 import './my_doctor_screen.dart';
 import './my_petslist_screen.dart';
@@ -27,17 +26,18 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => OwnerProfileBloc(
-        OwnerProfileUseCase(
-          AuthRepositoryImpl(
-            AuthRemoteDataSourceImpl(ApiClient()),
-            AuthLocalDataSourceImpl(),
-          ),
-        ),
-        SecureStorageService(),
-      )
-        ..add(OwnerProfileCallLocally())
-        ..add(OwnerDashBoardCallLocally()),
+      create: (_) =>
+          OwnerProfileBloc(
+              OwnerProfileUseCase(
+                AuthRepositoryImpl(
+                  AuthRemoteDataSourceImpl(ApiClient()),
+                  AuthLocalDataSourceImpl(),
+                ),
+              ),
+              SecureStorageService(),
+            )
+            ..add(OwnerProfileCallLocally())
+            ..add(OwnerDashBoardCallLocally()),
       child: BlocListener<OwnerProfileBloc, OwnerProfileState>(
         listenWhen: (previous, current) =>
             previous.isLoading != current.isLoading ||
@@ -45,6 +45,9 @@ class SettingsScreen extends StatelessWidget {
             previous.error != current.error,
         listener: (context, state) {
           if (state.error != null) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.error!)));
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => SignInScreen()),
@@ -241,7 +244,7 @@ class SettingsScreen extends StatelessWidget {
                         );
                       },
                     ),
-                 /*   _buildSettingsTile(
+                    /*   _buildSettingsTile(
                       context,
                       icon: Icons.history,
                       color: Colors.green.shade50,
@@ -391,9 +394,13 @@ class SettingsScreen extends StatelessWidget {
           subtitle,
           style: TextStyle(color: context.appMutedText, fontSize: 12),
         ),
-        trailing: trailing ??
-            Icon(Icons.arrow_forward_ios,
-                size: 14, color: context.appMutedText),
+        trailing:
+            trailing ??
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 14,
+              color: context.appMutedText,
+            ),
       ),
     );
   }
@@ -497,8 +504,9 @@ class SettingsScreen extends StatelessWidget {
         value: ownerProfileBloc,
         child: Dialog(
           backgroundColor: context.appSurface,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -568,9 +576,13 @@ class SettingsScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           _buildBulletPoint(
-                              context, "Your data will be saved securely"),
+                            context,
+                            "Your data will be saved securely",
+                          ),
                           _buildBulletPoint(
-                              context, "You can sign back in anytime"),
+                            context,
+                            "You can sign back in anytime",
+                          ),
                           _buildBulletPoint(
                             context,
                             "Upcoming appointments remain scheduled",
@@ -601,9 +613,7 @@ class SettingsScreen extends StatelessWidget {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () {
-                              ownerProfileBloc.add(
-                                ClearSharedPref(),
-                              );
+                              ownerProfileBloc.add(ClearSharedPref());
                               Navigator.pop(dialogContext);
                             },
                             style: ElevatedButton.styleFrom(

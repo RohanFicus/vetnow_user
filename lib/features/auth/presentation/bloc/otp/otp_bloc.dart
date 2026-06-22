@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vetnow_user/core/network/api_exception.dart';
 import 'package:vetnow_user/core/storage/secure_storage_service.dart';
 import 'package:vetnow_user/features/auth/data/models/dashboard_response_model.dart';
 import 'package:vetnow_user/features/auth/domain/entities/owner_profile_entity.dart';
@@ -69,7 +70,11 @@ class OtpBloc extends Bloc<OtpEvent, OtpState> {
       emit(state.copyWith(isLoading: false, otpVerifyEntity: result.data));
     } catch (e) {
       print("Error===>${e.toString()}");
-      emit(state.copyWith(isLoading: false, error: "Failed to send OTP"));
+      String message = "Failed to verify OTP";
+      if (e is ApiException) {
+        message = e.message;
+      }
+      emit(state.copyWith(isLoading: false, error: message));
     }
   }
 

@@ -5,17 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:vetnow_user/core/theme/app_theme_colors.dart';
+import 'package:vetnow_user/core/utils/pet_utils.dart';
 import 'package:vetnow_user/features/auth/data/models/dashboard_response_model.dart';
 import 'package:vetnow_user/features/auth/domain/entities/appointment_request.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/dashboardProfile/dashboard_bloc.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/dashboardProfile/dashboard_event.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/dashboardProfile/dashboard_state.dart';
 
-import 'package:vetnow_user/core/utils/pet_utils.dart';
-import '../components/app_bar.dart';
-import '../components/AppButton.dart';
-import './payment_summary_screen.dart';
 import '../../../../core/theme/app_color.dart';
+import '../components/AppButton.dart';
+import '../components/app_bar.dart';
+import './payment_summary_screen.dart';
 
 class BookAppointmentScreen extends StatefulWidget {
   const BookAppointmentScreen({super.key});
@@ -36,34 +36,6 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   final List<PlatformFile> _attachments = <PlatformFile>[];
   AppointmentRequest? _lastRequest;
 
-  final List<String> morningSlots = [
-    "09:00 AM",
-    "09:30 AM",
-    "10:00 AM",
-    "10:30 AM",
-    "11:00 AM",
-    "11:30 AM",
-  ];
-  final List<String> afternoonSlots = [
-    "12:00 PM",
-    "12:30 PM",
-    "01:00 PM",
-    "01:30 PM",
-    "02:00 PM",
-    "02:30 PM",
-  ];
-  final List<String> eveningSlots = ["03:00 PM", "03:30 PM", "04:00 PM"];
-  final List<String> symptoms = [
-    "Loss of appetite",
-    "Vomiting",
-    "Diarrhea",
-    "Lethargy",
-    "Fever",
-    "Coughing",
-    "Limping",
-    "Skin issues",
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -78,14 +50,17 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
 
   void _fetchSlots() {
     final state = context.read<DashboardBloc>().state;
-    final doctorId = state.doctorAvailability?.doctorId ??
+    final doctorId =
+        state.doctorAvailability?.doctorId ??
         state.doctorProfile?.doctorAvailabilityResponse?.doctorId ??
-        state.doctorProfile?.doctorId ??
-        "doc-001";
+        state.doctorProfile?.doctorId;
+
+    if (doctorId == null) return;
+
     final date = DateFormat('yyyy-MM-dd').format(_selectedDate);
     context.read<DashboardBloc>().add(
-          FetchAvailableSlotsEvent(doctorId: doctorId, date: date),
-        );
+      FetchAvailableSlotsEvent(doctorId: doctorId, date: date),
+    );
   }
 
   @override
@@ -99,9 +74,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     return BlocConsumer<DashboardBloc, DashboardState>(
       listener: (context, state) {
         if (state.error != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.error!)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.error!)));
         }
         if (state.bookingSuccess && _lastRequest != null) {
           final dashboardBloc = context.read<DashboardBloc>();
@@ -145,9 +120,12 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                         child: Column(
                           children: [
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                              ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     _monthLabel(_selectedDate),
@@ -162,15 +140,24 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                         onTap: canGoToPreviousDates
                                             ? () {
                                                 setState(() {
-                                                  final previousStart = _visibleDateStart
-                                                      .subtract(const Duration(days: 7));
+                                                  final previousStart =
+                                                      _visibleDateStart
+                                                          .subtract(
+                                                            const Duration(
+                                                              days: 7,
+                                                            ),
+                                                          );
                                                   _visibleDateStart =
-                                                      previousStart.isBefore(_today)
-                                                          ? _today
-                                                          : previousStart;
-                                                  if (_selectedDate
-                                                      .isBefore(_visibleDateStart)) {
-                                                    _selectedDate = _visibleDateStart;
+                                                      previousStart.isBefore(
+                                                        _today,
+                                                      )
+                                                      ? _today
+                                                      : previousStart;
+                                                  if (_selectedDate.isBefore(
+                                                    _visibleDateStart,
+                                                  )) {
+                                                    _selectedDate =
+                                                        _visibleDateStart;
                                                     selectedTime = null;
                                                   }
                                                 });
@@ -188,10 +175,13 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                       GestureDetector(
                                         onTap: () {
                                           setState(() {
-                                            _visibleDateStart = _visibleDateStart.add(
-                                              const Duration(days: 7),
-                                            );
-                                            if (_selectedDate.isBefore(_visibleDateStart) ||
+                                            _visibleDateStart =
+                                                _visibleDateStart.add(
+                                                  const Duration(days: 7),
+                                                );
+                                            if (_selectedDate.isBefore(
+                                                  _visibleDateStart,
+                                                ) ||
                                                 _selectedDate.isAfter(
                                                   _visibleDateStart.add(
                                                     const Duration(days: 6),
@@ -219,10 +209,15 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                               child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
                                 itemCount: visibleDates.length,
-                                padding: const EdgeInsets.symmetric(horizontal: 10),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
                                 itemBuilder: (context, index) {
                                   final date = visibleDates[index];
-                                  final isSelected = _isSameDate(_selectedDate, date);
+                                  final isSelected = _isSameDate(
+                                    _selectedDate,
+                                    date,
+                                  );
                                   final isPastDate = date.isBefore(_today);
 
                                   return GestureDetector(
@@ -237,13 +232,15 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                           },
                                     child: Container(
                                       width: 50,
-                                      margin: const EdgeInsets.symmetric(horizontal: 5),
+                                      margin: const EdgeInsets.symmetric(
+                                        horizontal: 5,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: isSelected
                                             ? AppColors.primary
                                             : isPastDate
-                                                ? Colors.transparent
-                                                : context.appSurface,
+                                            ? Colors.transparent
+                                            : context.appSurface,
                                         borderRadius: BorderRadius.circular(10),
                                         border: isSelected
                                             ? null
@@ -254,7 +251,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                               ),
                                       ),
                                       child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
                                           Text(
                                             _weekdayLabel(date),
@@ -262,8 +260,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                               color: isSelected
                                                   ? Colors.white
                                                   : isPastDate
-                                                      ? Colors.grey.shade400
-                                                      : Colors.grey,
+                                                  ? Colors.grey.shade400
+                                                  : Colors.grey,
                                               fontSize: 12,
                                             ),
                                           ),
@@ -273,8 +271,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                               color: isSelected
                                                   ? Colors.white
                                                   : isPastDate
-                                                      ? Colors.grey.shade400
-                                                      : context.appText,
+                                                  ? Colors.grey.shade400
+                                                  : context.appText,
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
@@ -329,7 +327,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: AppButton(
-                  text: state.isLoading ? "Please wait..." : "Proceed to Payment",
+                  text: state.isLoading
+                      ? "Please wait..."
+                      : "Proceed to Payment",
                   textColor: _canProceed && !state.isLoading
                       ? Colors.white
                       : Colors.grey,
@@ -349,19 +349,33 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   }
 
   void _handleProceed(BuildContext context, DashboardState state) {
+    final doctorId =
+        state.doctorAvailability?.doctorId ??
+        state.doctorProfile?.doctorAvailabilityResponse?.doctorId ??
+        state.doctorProfile?.doctorId;
+
+    if (doctorId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Doctor information is missing")),
+      );
+      return;
+    }
+
     _lastRequest = AppointmentRequest(
-      doctorId: state.doctorAvailability?.doctorId ??
-          state.doctorProfile?.doctorAvailabilityResponse?.doctorId ??
-          state.doctorProfile?.doctorId ??
-          "doc-001",
+      doctorId: doctorId,
       petId: _selectedPet?.profile?.id ?? "",
       speciesId: _selectedSpecies?.id ?? _selectedPet?.profile?.speciesId ?? "",
       appointmentDate: DateFormat('yyyy-MM-dd').format(_selectedDate),
-      appointmentTime: selectedTime!.replaceAll(RegExp(r' [AP]M'), ''), // Simple format conversion
+      appointmentTime: selectedTime!.replaceAll(
+        RegExp(r' [AP]M'),
+        '',
+      ), // Simple format conversion
       consultationType: "VIDEO",
       notes: _notesController.text,
       symptomIds: _selectedSymptoms.join(','),
-      attachments: _attachments.isNotEmpty ? File(_attachments.first.path!) : null,
+      attachments: _attachments.isNotEmpty
+          ? File(_attachments.first.path!)
+          : null,
     );
 
     // Call the API
@@ -369,9 +383,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   }
 
   Widget _buildSymptomsSection(DashboardState state) {
-    final displaySymptoms = state.symptomsList.isNotEmpty
-        ? state.symptomsList.map((e) => e.nameEn).toList()
-        : symptoms;
+    if (state.symptomsList.isEmpty) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -381,16 +393,16 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         Wrap(
           spacing: 10,
           runSpacing: 10,
-          children: displaySymptoms.map((symptom) {
-            final isSelected = _selectedSymptoms.contains(symptom);
+          children: state.symptomsList.map((symptom) {
+            final isSelected = _selectedSymptoms.contains(symptom.id);
 
             return GestureDetector(
               onTap: () {
                 setState(() {
                   if (isSelected) {
-                    _selectedSymptoms.remove(symptom);
+                    _selectedSymptoms.remove(symptom.id);
                   } else {
-                    _selectedSymptoms.add(symptom);
+                    _selectedSymptoms.add(symptom.id);
                   }
                 });
               },
@@ -408,7 +420,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                   border: Border.all(color: context.appBorder),
                 ),
                 child: Text(
-                  symptom,
+                  symptom.nameEn,
                   style: TextStyle(
                     color: isSelected ? Colors.white : context.appText,
                     fontWeight: FontWeight.w600,
@@ -480,8 +492,11 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.upload_outlined,
-                    size: 18, color: Colors.grey.shade500),
+                Icon(
+                  Icons.upload_outlined,
+                  size: 18,
+                  color: Colors.grey.shade500,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   "Upload files",
@@ -644,8 +659,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  color:
-                      isSelected ? AppColors.primary : context.appSurface,
+                  color: isSelected ? AppColors.primary : context.appSurface,
                   border: Border.all(color: context.appBorder),
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -707,8 +721,11 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.check_circle,
-                      color: AppColors.primary, size: 18),
+                  const Icon(
+                    Icons.check_circle,
+                    color: AppColors.primary,
+                    size: 18,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -744,9 +761,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           _selectedSymptoms.clear();
         });
         if (profile?.speciesId != null) {
-          context
-              .read<DashboardBloc>()
-              .add(FetchSymptomsEvent(profile!.speciesId!));
+          context.read<DashboardBloc>().add(
+            FetchSymptomsEvent(profile!.speciesId!),
+          );
         }
       },
       child: Container(
@@ -814,8 +831,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         margin: const EdgeInsets.only(right: 4),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color:
-              isSelected ? AppColors.primary : context.appSurfaceVariant,
+          color: isSelected ? AppColors.primary : context.appSurfaceVariant,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: isSelected ? AppColors.primary : context.appBorder,
@@ -861,9 +877,21 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   }
 
   Future<void> _showSpeciesBottomSheet(DashboardState state) async {
-    // Collect all species from appointments/pets or use a default list if needed.
-    // Assuming you might want to show unique species from the dashboard state.
-    final speciesOptions = state.pets.map((p) => p.profile?.speciesId).toSet();
+    // Collect unique species from pets
+    final Map<String, Species> uniqueSpecies = {};
+    for (var pet in state.pets) {
+      final p = pet.profile;
+      if (p != null &&
+          p.speciesId != null &&
+          !uniqueSpecies.containsKey(p.speciesId)) {
+        uniqueSpecies[p.speciesId!] = Species(
+          id: p.speciesId,
+          nameEn: p.speciesName ?? "Species",
+        );
+      }
+    }
+
+    final speciesList = uniqueSpecies.values.toList();
 
     await showModalBottomSheet<void>(
       context: context,
@@ -904,75 +932,85 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                   style: TextStyle(color: context.appMutedText, fontSize: 13),
                 ),
                 const SizedBox(height: 18),
-                GridView.builder(
-                  shrinkWrap: true,
-                  itemCount: state.pets.length, // Simplified for brevity
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 1.6,
-                  ),
-                  itemBuilder: (context, index) {
-                    final pet = state.pets[index];
-                    final species = Species(
-                      id: pet.profile?.speciesId ?? "",
-                      nameEn: pet.profile?.speciesName ?? "Species",
-                    );
-                    final isSelected = _selectedSpecies?.id == species.id;
+                if (speciesList.isEmpty)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Text(
+                        "No species found. Please add a pet first.",
+                        style: TextStyle(color: context.appMutedText),
+                      ),
+                    ),
+                  )
+                else
+                  GridView.builder(
+                    shrinkWrap: true,
+                    itemCount: speciesList.length,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          childAspectRatio: 1.6,
+                        ),
+                    itemBuilder: (context, index) {
+                      final species = speciesList[index];
+                      final isSelected = _selectedSpecies?.id == species.id;
 
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedSpecies = species;
-                          _selectedPet = null;
-                          selectedTime = null;
-                          _selectedSymptoms.clear();
-                        });
-                        if (species.id != null) {
-                          context
-                              .read<DashboardBloc>()
-                              .add(FetchSymptomsEvent(species.id!));
-                        }
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? AppColors.primary
-                              : context.appSurfaceVariant,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedSpecies = species;
+                            _selectedPet = null;
+                            selectedTime = null;
+                            _selectedSymptoms.clear();
+                          });
+                          if (species.id != null) {
+                            context.read<DashboardBloc>().add(
+                              FetchSymptomsEvent(species.id!),
+                            );
+                          }
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
                             color: isSelected
                                 ? AppColors.primary
-                                : context.appBorder,
+                                : context.appSurfaceVariant,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : context.appBorder,
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                PetUtils.getSpeciesIcon(species.nameEn),
+                                color: isSelected
+                                    ? Colors.white
+                                    : AppColors.primary,
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                species.nameEn ?? "Species",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : context.appText,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              PetUtils.getSpeciesIcon(species.nameEn),
-                              color:
-                                  isSelected ? Colors.white : AppColors.primary,
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              species.nameEn ?? "Species",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color:
-                                    isSelected ? Colors.white : context.appText,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                      );
+                    },
+                  ),
               ],
             ),
           ),
@@ -1018,5 +1056,4 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     return selectedTime != null &&
         (_selectedPet != null || _selectedSpecies != null);
   }
-
 }

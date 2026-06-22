@@ -6,7 +6,6 @@ import 'package:vetnow_user/features/auth/data/models/dashboard_response_model.d
 import 'package:vetnow_user/features/auth/data/models/symptoms_response_model.dart';
 import 'package:vetnow_user/features/auth/domain/entities/appointment_request.dart';
 import 'package:vetnow_user/features/auth/domain/entities/assessment_request.dart';
-
 import 'package:vetnow_user/features/auth/domain/entities/payment_verify_request.dart';
 
 abstract class DashboardRepository {

@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:vetnow_user/features/auth/data/datasources/dashboard_local_data_source.dart';
 import 'package:vetnow_user/features/auth/data/datasources/dashboard_remote_data_source.dart';
 import 'package:vetnow_user/features/auth/data/models/appointment_booking_response_model.dart';
@@ -23,7 +21,7 @@ class DashboardRepositoryImpl implements DashboardRepository {
   Future<DashBoardResponseModal> getDashBoardApi() async {
     try {
       final response = await remoteDataSource.getDashboardApi();
-      
+
       // If server returned data (even if it's the mock data from RemoteDataSource catch block)
       if (response.status && response.data != null) {
         // Only update local DB if it's NOT just the default empty object
@@ -34,7 +32,7 @@ class DashboardRepositoryImpl implements DashboardRepository {
     } catch (e) {
       // API call failed completely (No internet / Server 500)
     }
-    
+
     // Fallback to local DB for Profile, Pets, and Appointments
     final cachedData = await localDataSource.getCachedDashboard();
     if (cachedData != null) {
@@ -92,7 +90,7 @@ class DashboardRepositoryImpl implements DashboardRepository {
   @override
   Future<void> verifyPayment(PaymentVerifyRequest paymentVerifyRequest) async {
     await remoteDataSource.verifyPayment(paymentVerifyRequest);
-    // Note: Ideally, after successful payment verification, 
+    // Note: Ideally, after successful payment verification,
     // we should trigger a dashboard refresh to update the local appointment status.
   }
 

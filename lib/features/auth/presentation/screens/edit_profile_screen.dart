@@ -38,6 +38,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       )..add(OwnerProfileCallLocally()),
       child: BlocListener<OwnerProfileBloc, OwnerProfileState>(
         listener: (context, state) {
+          if (state.error != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.error!),
+                backgroundColor: Colors.red,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
           if (!state.isLoading && state.ownerProfileEntity != null) {
             Navigator.of(context).pop();
           }
@@ -45,14 +54,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         child: BlocBuilder<OwnerProfileBloc, OwnerProfileState>(
           builder: (context, state) {
             return Scaffold(
-              backgroundColor: const Color(0xFFF8FAFC), // Modern off-white/blue tint
+              backgroundColor: const Color(
+                0xFFF8FAFC,
+              ), // Modern off-white/blue tint
               appBar: _buildSimpleAppBar(context, "Edit Profile"),
               body: SafeArea(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Column(
                     children: [
-
                       const SizedBox(height: 32),
 
                       // 2. FORM SECTION
@@ -78,27 +88,42 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             AppTextField(
                               label: 'First Name',
                               hint: "John",
-                              prefixIcon: const Icon(Icons.person_outline, size: 20),
+                              prefixIcon: const Icon(
+                                Icons.person_outline,
+                                size: 20,
+                              ),
                               value: state.firstName,
-                              onChanged: (v) => context.read<OwnerProfileBloc>().add(FirstNameChanged(v)),
+                              onChanged: (v) => context
+                                  .read<OwnerProfileBloc>()
+                                  .add(FirstNameChanged(v)),
                             ),
                             const SizedBox(height: 18),
 
                             AppTextField(
                               label: 'Last Name',
                               hint: "Doe",
-                              prefixIcon: const Icon(Icons.person_outline, size: 20),
+                              prefixIcon: const Icon(
+                                Icons.person_outline,
+                                size: 20,
+                              ),
                               value: state.lastName,
-                              onChanged: (v) => context.read<OwnerProfileBloc>().add(LastNameChanged(v)),
+                              onChanged: (v) => context
+                                  .read<OwnerProfileBloc>()
+                                  .add(LastNameChanged(v)),
                             ),
                             const SizedBox(height: 18),
 
                             AppTextField(
                               label: 'Email Address',
                               hint: "john@example.com",
-                              prefixIcon: const Icon(Icons.mail_outline, size: 20),
+                              prefixIcon: const Icon(
+                                Icons.mail_outline,
+                                size: 20,
+                              ),
                               value: state.email,
-                              onChanged: (v) => context.read<OwnerProfileBloc>().add(EmailChanged(v)),
+                              onChanged: (v) => context
+                                  .read<OwnerProfileBloc>()
+                                  .add(EmailChanged(v)),
                             ),
                           ],
                         ),
@@ -132,20 +157,34 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               hint: "Search your city...",
                               readOnly: true,
                               value: state.address,
-                              prefixIcon: const Icon(Icons.location_on_outlined, size: 20, color: Colors.redAccent),
-                              suffixIcon: const Icon(Icons.chevron_right, color: Colors.grey),
+                              prefixIcon: const Icon(
+                                Icons.location_on_outlined,
+                                size: 20,
+                                color: Colors.redAccent,
+                              ),
+                              suffixIcon: const Icon(
+                                Icons.chevron_right,
+                                color: Colors.grey,
+                              ),
                               onTap: () async {
-                                final SearchAddressModel? result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (_) => const AddressSearchScreen()),
-                                );
+                                final SearchAddressModel? result =
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            const AddressSearchScreen(),
+                                      ),
+                                    );
                                 if (result != null && mounted) {
-                                  context.read<OwnerProfileBloc>().add(AddressSelected(
-                                    country: result.country,
-                                    state: result.state,
-                                    city: result.city,
-                                    address: "${result.city}, ${result.state}, ${result.country}",
-                                  ));
+                                  context.read<OwnerProfileBloc>().add(
+                                    AddressSelected(
+                                      country: result.country,
+                                      state: result.state,
+                                      city: result.city,
+                                      address:
+                                          "${result.city}, ${result.state}, ${result.country}",
+                                    ),
+                                  );
                                 }
                               },
                             ),
@@ -161,19 +200,28 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         height: 56,
                         child: AppButton(
                           text: state.isLoading ? "" : "Save Changes",
-                          textColor: state.isProfileEdited ? Colors.white : Colors.grey.shade600,
-                          color: state.isProfileEdited ? AppColors.primary : Colors.grey.shade200,
+                          textColor: state.isProfileEdited
+                              ? Colors.white
+                              : Colors.grey.shade600,
+                          color: state.isProfileEdited
+                              ? AppColors.primary
+                              : Colors.grey.shade200,
                           onPressed: () {
                             if (state.isProfileEdited && !state.isLoading) {
-                              context.read<OwnerProfileBloc>().add(OnSubmitted());
+                              context.read<OwnerProfileBloc>().add(
+                                OnSubmitted(),
+                              );
                             }
                           },
                           child: state.isLoading
                               ? const SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
-                          )
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
                               : null,
                         ),
                       ),
@@ -226,7 +274,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 2),
               ),
-              child: const Icon(Icons.camera_alt, color: Colors.white, size: 18),
+              child: const Icon(
+                Icons.camera_alt,
+                color: Colors.white,
+                size: 18,
+              ),
             ),
           ),
         ],
@@ -261,7 +313,11 @@ PreferredSizeWidget _buildSimpleAppBar(BuildContext context, String title) {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.grey.shade200),
         ),
-        child: const Icon(Icons.arrow_back_ios_new, size: 14, color: Colors.black),
+        child: const Icon(
+          Icons.arrow_back_ios_new,
+          size: 14,
+          color: Colors.black,
+        ),
       ),
       onPressed: () => Navigator.pop(context),
     ),

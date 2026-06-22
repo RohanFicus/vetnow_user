@@ -36,7 +36,9 @@ class DashboardUseCase {
     return repository.submitAnswers(assessmentRequest: assessmentRequest);
   }
 
-  Future<AppointmentBookingResponseModel> bookAppointment(AppointmentRequest appointmentRequest) {
+  Future<AppointmentBookingResponseModel> bookAppointment(
+    AppointmentRequest appointmentRequest,
+  ) {
     return repository.bookAppointment(appointmentRequest);
   }
 

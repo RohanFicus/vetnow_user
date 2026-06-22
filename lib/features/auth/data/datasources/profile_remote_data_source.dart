@@ -185,7 +185,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
           breedId: petProfileStep1Entity.breedId ?? 'breed-lab',
           name: petProfileStep1Entity.name ?? 'Coco',
           sex: petProfileStep1Entity.sex ?? 'FEMALE',
-          ageMonths: int.tryParse(petProfileStep1Entity.ageMonths ?? '12') ?? 12,
+          ageMonths:
+              int.tryParse(petProfileStep1Entity.ageMonths ?? '12') ?? 12,
         ),
       );
     }
@@ -212,7 +213,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
           breedId: petProfileStep1Entity.breedId ?? 'breed-lab',
           name: petProfileStep1Entity.name ?? 'Coco',
           sex: petProfileStep1Entity.sex ?? 'FEMALE',
-          ageMonths: int.tryParse(petProfileStep1Entity.ageMonths ?? '12') ?? 12,
+          ageMonths:
+              int.tryParse(petProfileStep1Entity.ageMonths ?? '12') ?? 12,
         ),
       );
     }
@@ -359,7 +361,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
           breedId: petProfileStep1Entity?.breedId ?? 'breed-lab',
           name: petProfileStep1Entity?.name ?? 'Coco',
           sex: petProfileStep1Entity?.sex ?? 'FEMALE',
-          ageMonths: int.tryParse(petProfileStep1Entity?.ageMonths ?? '12') ?? 12,
+          ageMonths:
+              int.tryParse(petProfileStep1Entity?.ageMonths ?? '12') ?? 12,
         ),
       );
     }
@@ -386,7 +389,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
           breedId: petProfileStep1Entity?.breedId ?? 'breed-lab',
           name: petProfileStep1Entity?.name ?? 'Coco',
           sex: petProfileStep1Entity?.sex ?? 'FEMALE',
-          ageMonths: int.tryParse(petProfileStep1Entity?.ageMonths ?? '12') ?? 12,
+          ageMonths:
+              int.tryParse(petProfileStep1Entity?.ageMonths ?? '12') ?? 12,
         ),
       );
     }
