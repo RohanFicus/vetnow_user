@@ -52,4 +52,8 @@ class DashboardUseCase {
   }) {
     return repository.getAvailableSlots(doctorId: doctorId, date: date);
   }
+
+  Future<List<Species>> getSpecies() {
+    return repository.getSpecies();
+  }
 }

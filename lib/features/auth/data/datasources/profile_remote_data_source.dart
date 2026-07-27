@@ -85,22 +85,13 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       );
     }
 
-    try {
-      final response = await client.dio.get("/api/v1/species");
+    final response = await client.dio.get("/api/v1/species");
 
-      return ApiResponseHandler.handleResponse(
-        response,
-        (json) => (json as List).map((e) => SpeciesModel.fromJson(e)).toList(),
-        null,
-      );
-    } catch (_) {
-      await MockData.latency();
-      return ApiResponse(
-        status: true,
-        message: 'Mock species loaded successfully',
-        data: MockData.species(),
-      );
-    }
+    return ApiResponseHandler.handleResponse(
+      response,
+      (json) => (json as List).map((e) => SpeciesModel.fromJson(e)).toList(),
+      null,
+    );
   }
 
   @override
@@ -116,25 +107,16 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       );
     }
 
-    try {
-      final response = await client.dio.get(
-        "/api/v1/breeds",
-        queryParameters: {"speciesId": speciesId},
-      );
+    final response = await client.dio.get(
+      "/api/v1/breeds",
+      queryParameters: {"speciesId": speciesId},
+    );
 
-      return ApiResponseHandler.handleResponse(
-        response,
-        (json) => (json as List).map((e) => BreedsModel.fromJson(e)).toList(),
-        null,
-      );
-    } catch (_) {
-      await MockData.latency();
-      return ApiResponse(
-        status: true,
-        message: 'Mock breeds loaded successfully',
-        data: MockData.breeds(speciesId: speciesId),
-      );
-    }
+    return ApiResponseHandler.handleResponse(
+      response,
+      (json) => (json as List).map((e) => BreedsModel.fromJson(e)).toList(),
+      null,
+    );
   }
 
   @override
@@ -150,25 +132,16 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       );
     }
 
-    try {
-      final response = await client.dio.get(
-        "/api/v1/vaccines",
-        queryParameters: {"speciesId": speciesId},
-      );
+    final response = await client.dio.get(
+      "/api/v1/vaccines",
+      queryParameters: {"speciesId": speciesId},
+    );
 
-      return ApiResponseHandler.handleResponse(
-        response,
-        (json) => (json as List).map((e) => VaccineModel.fromJson(e)).toList(),
-        null,
-      );
-    } catch (_) {
-      await MockData.latency();
-      return ApiResponse(
-        status: true,
-        message: 'Mock vaccines loaded successfully',
-        data: MockData.vaccines(speciesId: speciesId),
-      );
-    }
+    return ApiResponseHandler.handleResponse(
+      response,
+      (json) => (json as List).map((e) => VaccineModel.fromJson(e)).toList(),
+      null,
+    );
   }
 
   @override
@@ -191,33 +164,13 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       );
     }
 
-    try {
-      final response = await client.dio.post(
-        "/api/v1/pets",
-        data: petProfileStep1Entity,
-        //queryParameters: {"speciesId": speciesId},
-      );
+    final response = await client.dio.post("/api/v1/pets", data: petProfileStep1Entity);
 
-      return ApiResponseHandler.handleResponse(
-        response,
-        (json) => PetProfileStep1.fromJson(json),
-        null,
-      );
-    } catch (_) {
-      await MockData.latency();
-      return ApiResponse(
-        status: true,
-        message: 'Mock pet step 1 created successfully',
-        data: MockData.petStep1(
-          speciesId: petProfileStep1Entity.speciesId ?? 'species-dog',
-          breedId: petProfileStep1Entity.breedId ?? 'breed-lab',
-          name: petProfileStep1Entity.name ?? 'Coco',
-          sex: petProfileStep1Entity.sex ?? 'FEMALE',
-          ageMonths:
-              int.tryParse(petProfileStep1Entity.ageMonths ?? '12') ?? 12,
-        ),
-      );
-    }
+    return ApiResponseHandler.handleResponse(
+      response,
+      (json) => PetProfileStep1.fromJson(json),
+      null,
+    );
   }
 
   @override
@@ -238,30 +191,16 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       );
     }
 
-    try {
-      final response = await client.dio.put(
-        "/api/v1/pets/$petId",
-        data: petProfileStep2Entity,
-        //queryParameters: {"speciesId": speciesId},
-      );
+    final response = await client.dio.put(
+      "/api/v1/pets/$petId",
+      data: petProfileStep2Entity,
+    );
 
-      return ApiResponseHandler.handleResponse(
-        response,
-        (json) => PetProfileStep1.fromJson(json),
-        null,
-      );
-    } catch (_) {
-      await MockData.latency();
-      return ApiResponse(
-        status: true,
-        message: 'Mock pet step 2 created successfully',
-        data: MockData.petStep1(
-          id: petId,
-          weightKg: petProfileStep2Entity?.weightKg ?? 7.5,
-          color: petProfileStep2Entity?.color ?? 'Brown',
-        ),
-      );
-    }
+    return ApiResponseHandler.handleResponse(
+      response,
+      (json) => PetProfileStep1.fromJson(json),
+      null,
+    );
   }
 
   @override
@@ -286,28 +225,19 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       "petVaccinations": petVaccinations,
       "files": files,
     });
-    // PRINT FIELDS
     for (var field in formData.fields) {
       print("FIELD => ${field.key}: ${field.value}");
     }
-    try {
-      final response = await client.dio.post(
-        "/api/v1/pets/$petId/complete-profile",
-        data: formData,
-      );
-      return ApiResponseHandler.handleResponse(
-        response,
-        (json) => CompleteProfileResponse.fromJson(json),
-        null,
-      );
-    } catch (_) {
-      await MockData.latency();
-      return ApiResponse(
-        status: true,
-        message: 'Mock pet profile completed successfully',
-        data: MockData.completePetProfile(petId: petId),
-      );
-    }
+
+    final response = await client.dio.post(
+      "/api/v1/pets/$petId/complete-profile",
+      data: formData,
+    );
+    return ApiResponseHandler.handleResponse(
+      response,
+      (json) => CompleteProfileResponse.fromJson(json),
+      null,
+    );
   }
 
   @override
@@ -325,24 +255,15 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
     print("createPetProfile");
 
-    try {
-      final response = await client.dio.post(
-        "/api/v1/pets/$petId/skip-complete-profile",
-        data: {},
-      );
-      return ApiResponseHandler.handleResponse(
-        response,
-        (json) => CompleteProfileResponse.fromJson(json),
-        null,
-      );
-    } catch (_) {
-      await MockData.latency();
-      return ApiResponse(
-        status: true,
-        message: 'Mock pet profile skipped successfully',
-        data: MockData.completePetProfile(petId: petId),
-      );
-    }
+    final response = await client.dio.post(
+      "/api/v1/pets/$petId/skip-complete-profile",
+      data: {},
+    );
+    return ApiResponseHandler.handleResponse(
+      response,
+      (json) => CompleteProfileResponse.fromJson(json),
+      null,
+    );
   }
 
   @override
@@ -367,33 +288,16 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       );
     }
 
-    try {
-      final response = await client.dio.put(
-        "/api/v1/pets/$petId",
-        data: petProfileStep1Entity,
-      );
+    final response = await client.dio.put(
+      "/api/v1/pets/$petId",
+      data: petProfileStep1Entity,
+    );
 
-      return ApiResponseHandler.handleResponse(
-        response,
-        (json) => PetProfileStep1.fromJson(json),
-        null,
-      );
-    } catch (_) {
-      await MockData.latency();
-      return ApiResponse(
-        status: true,
-        message: 'Mock pet step 1 updated successfully',
-        data: MockData.petStep1(
-          id: petId,
-          speciesId: petProfileStep1Entity?.speciesId ?? 'species-dog',
-          breedId: petProfileStep1Entity?.breedId ?? 'breed-lab',
-          name: petProfileStep1Entity?.name ?? 'Coco',
-          sex: petProfileStep1Entity?.sex ?? 'FEMALE',
-          ageMonths:
-              int.tryParse(petProfileStep1Entity?.ageMonths ?? '12') ?? 12,
-        ),
-      );
-    }
+    return ApiResponseHandler.handleResponse(
+      response,
+      (json) => PetProfileStep1.fromJson(json),
+      null,
+    );
   }
 
   @override
@@ -414,29 +318,16 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       );
     }
 
-    try {
-      final response = await client.dio.put(
-        "/api/v1/pets/$petId",
-        data: petProfileStep2Entity,
-      );
+    final response = await client.dio.put(
+      "/api/v1/pets/$petId",
+      data: petProfileStep2Entity,
+    );
 
-      return ApiResponseHandler.handleResponse(
-        response,
-        (json) => PetProfileStep1.fromJson(json),
-        null,
-      );
-    } catch (_) {
-      await MockData.latency();
-      return ApiResponse(
-        status: true,
-        message: 'Mock pet step 2 updated successfully',
-        data: MockData.petStep1(
-          id: petId,
-          weightKg: petProfileStep2Entity.weightKg ?? 7.5,
-          color: petProfileStep2Entity.color ?? 'Brown',
-        ),
-      );
-    }
+    return ApiResponseHandler.handleResponse(
+      response,
+      (json) => PetProfileStep1.fromJson(json),
+      null,
+    );
   }
 
   @override
@@ -461,30 +352,20 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       "files": files,
     });
 
-    // PRINT FIELDS
     for (var field in formData.fields) {
       print("FIELD => ${field.key}: ${field.value}");
     }
 
-    try {
-      final response = await client.dio.put(
-        "/api/v1/pets/$petId/complete-profile",
-        data: formData,
-      );
+    final response = await client.dio.put(
+      "/api/v1/pets/$petId/complete-profile",
+      data: formData,
+    );
 
-      return ApiResponseHandler.handleResponse(
-        response,
-        (json) => CompleteProfileResponse.fromJson(json),
-        null,
-      );
-    } catch (_) {
-      await MockData.latency();
-      return ApiResponse(
-        status: true,
-        message: 'Mock pet profile updated successfully',
-        data: MockData.completePetProfile(petId: petId),
-      );
-    }
+    return ApiResponseHandler.handleResponse(
+      response,
+      (json) => CompleteProfileResponse.fromJson(json),
+      null,
+    );
   }
 
   @override
@@ -503,10 +384,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
     print("editProfile API called for petId: $petId");
 
-    // Create FormData for multipart request (supports file uploads)
     final formData = FormData.fromMap(editRequest.toFormData());
 
-    // Print debug information
     print("=== EDIT PROFILE REQUEST ===");
     print("Pet ID: $petId");
     for (var field in formData.fields) {
@@ -516,24 +395,15 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       print("FILE => ${file.key}: ${file.value.filename}");
     }
 
-    try {
-      final response = await client.dio.put(
-        "/api/v1/pets/$petId/pet-profile",
-        data: formData,
-      );
+    final response = await client.dio.put(
+      "/api/v1/pets/$petId/pet-profile",
+      data: formData,
+    );
 
-      return ApiResponseHandler.handleResponse(
-        response,
-        (json) => CompleteProfileResponse.fromJson(json),
-        null,
-      );
-    } catch (_) {
-      await MockData.latency();
-      return ApiResponse(
-        status: true,
-        message: 'Mock pet profile edited successfully',
-        data: MockData.completePetProfile(petId: petId ?? 'pet-003'),
-      );
-    }
+    return ApiResponseHandler.handleResponse(
+      response,
+      (json) => CompleteProfileResponse.fromJson(json),
+      null,
+    );
   }
 }

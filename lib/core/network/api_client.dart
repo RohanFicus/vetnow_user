@@ -11,7 +11,7 @@ class ApiClient {
     final storage = SecureStorageService();
     dio = Dio(
       BaseOptions(
-        baseUrl: "https://vetnow.rootficus.in/",
+        baseUrl: "https://api.vetnow.app/",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: {"Content-Type": "application/json"},

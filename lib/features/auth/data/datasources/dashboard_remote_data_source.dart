@@ -40,6 +40,8 @@ abstract class DashboardRemoteDataSource {
     required String doctorId,
     required String date,
   });
+
+  Future<ApiResponse<List<Species>, void>> getSpeciesApi();
 }
 
 class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
@@ -78,7 +80,7 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
     required String speciesId,
   }) async {
     final response = await client.dio.get(
-      "/api/v1/pet-owner/symptoms",
+      "/api/v1/symptoms",
       queryParameters: {'speciesId': speciesId},
     );
     return ApiResponseHandler.handleResponse(
@@ -156,6 +158,17 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
     return ApiResponseHandler.handleResponse(
       response,
       (json) => AvailableSlotsModel.fromJson(json),
+      null,
+    );
+  }
+
+  @override
+  Future<ApiResponse<List<Species>, void>> getSpeciesApi() async {
+    final response = await client.dio.get("/api/v1/species");
+
+    return ApiResponseHandler.handleResponse(
+      response,
+      (json) => (json as List).map((e) => Species.fromJson(e)).toList(),
       null,
     );
   }

@@ -3,10 +3,11 @@ import 'package:vetnow_user/core/storage/secure_storage_service.dart';
 import 'package:vetnow_user/features/auth/data/datasources/auth_local_data_source.dart';
 import 'package:vetnow_user/features/auth/data/datasources/dashboard_local_data_source.dart';
 import 'package:vetnow_user/features/auth/data/datasources/dashboard_remote_data_source.dart';
+import 'package:vetnow_user/features/auth/data/datasources/profile_remote_data_source.dart';
 import 'package:vetnow_user/features/auth/data/repositories/dashboard_repository_impl.dart';
 import 'package:vetnow_user/features/auth/domain/repository/dashboard_repository.dart';
-import 'package:vetnow_user/features/auth/data/datasources/profile_remote_data_source.dart';
 import 'package:vetnow_user/features/auth/domain/usecases/dashboard_usecase.dart';
+import 'package:vetnow_user/features/auth/domain/usecases/delete_account_usecase.dart';
 import 'package:vetnow_user/features/auth/domain/usecases/owner_profile_usecase.dart';
 import 'package:vetnow_user/features/auth/domain/usecases/profile_usecase.dart';
 import 'package:vetnow_user/features/auth/domain/usecases/send_otp_usecase.dart';
@@ -75,7 +76,12 @@ Future<void> initDependencies() async {
   // ========== USE CASES ==========
   sl.registerLazySingleton<SendOtpUseCase>(() => SendOtpUseCase(sl()));
   sl.registerLazySingleton<VerifyOtpUseCase>(() => VerifyOtpUseCase(sl()));
-  sl.registerLazySingleton<OwnerProfileUseCase>(() => OwnerProfileUseCase(sl()));
+  sl.registerLazySingleton<OwnerProfileUseCase>(
+    () => OwnerProfileUseCase(sl()),
+  );
+  sl.registerLazySingleton<DeleteAccountUseCase>(
+    () => DeleteAccountUseCase(sl()),
+  );
   sl.registerLazySingleton<ProfileUseCase>(() => ProfileUseCase(sl()));
   sl.registerLazySingleton<DashboardUseCase>(() => DashboardUseCase(sl()));
 
@@ -97,6 +103,10 @@ Future<void> initDependencies() async {
   );
 
   sl.registerFactory<OwnerProfileBloc>(
-    () => OwnerProfileBloc(sl<OwnerProfileUseCase>(), sl<SecureStorageService>()),
+    () => OwnerProfileBloc(
+      sl<OwnerProfileUseCase>(),
+      sl<DeleteAccountUseCase>(),
+      sl<SecureStorageService>(),
+    ),
   );
 }

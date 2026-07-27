@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:vetnow_user/features/auth/data/models/assessment_response_model.dart';
 import 'package:vetnow_user/features/auth/domain/entities/appointment_request.dart';
-import 'package:vetnow_user/features/auth/domain/entities/payment_verify_request.dart';
 import 'package:vetnow_user/features/auth/domain/entities/assessment_question_entity.dart';
+import 'package:vetnow_user/features/auth/domain/entities/payment_verify_request.dart';
 
 abstract class DashboardEvent extends Equatable {
   const DashboardEvent();
@@ -132,3 +132,5 @@ class FetchAvailableSlotsEvent extends DashboardEvent {
   @override
   List<Object?> get props => [doctorId, date];
 }
+
+class FetchAllSpeciesEvent extends DashboardEvent {}

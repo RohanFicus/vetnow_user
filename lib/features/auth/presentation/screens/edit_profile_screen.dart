@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vetnow_user/core/network/api_client.dart';
-import 'package:vetnow_user/core/storage/secure_storage_service.dart';
-import 'package:vetnow_user/features/auth/data/datasources/auth_local_data_source.dart';
-import 'package:vetnow_user/features/auth/data/datasources/auth_remote_data_source.dart';
-import 'package:vetnow_user/features/auth/data/repositories/auth_repository_impl.dart';
-import 'package:vetnow_user/features/auth/domain/usecases/owner_profile_usecase.dart';
+import 'package:vetnow_user/core/di/service_locator.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/ownerProfile/owner_profile_bloc.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/ownerProfile/owner_profile_event.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/ownerProfile/owner_profile_state.dart';
@@ -27,15 +22,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => OwnerProfileBloc(
-        OwnerProfileUseCase(
-          AuthRepositoryImpl(
-            AuthRemoteDataSourceImpl(ApiClient()),
-            AuthLocalDataSourceImpl(),
-          ),
-        ),
-        SecureStorageService(),
-      )..add(OwnerProfileCallLocally()),
+      create: (_) => sl<OwnerProfileBloc>()..add(OwnerProfileCallLocally()),
       child: BlocListener<OwnerProfileBloc, OwnerProfileState>(
         listener: (context, state) {
           if (state.error != null) {

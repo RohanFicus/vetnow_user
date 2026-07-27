@@ -27,4 +27,5 @@ abstract class DashboardRepository {
     required String doctorId,
     required String date,
   });
+  Future<List<Species>> getSpecies();
 }

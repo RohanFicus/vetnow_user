@@ -1,8 +1,6 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:vetnow_user/core/config/app_mode.dart';
-import 'package:vetnow_user/core/mock/mock_data.dart';
 import 'package:vetnow_user/core/network/api_response_handler.dart';
 import 'package:vetnow_user/features/auth/data/models/dashboard_response_model.dart';
 import 'package:vetnow_user/features/auth/data/models/meta_model.dart';
@@ -30,6 +28,8 @@ abstract class AuthRemoteDataSource {
     required String address,
     required File image,
   });
+
+  Future<ApiResponse<void, void>> deleteAccount();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -103,5 +103,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       (json) => OwnerProfileResponseModel.fromJson(json),
       null,
     );
+  }
+
+  @override
+  Future<ApiResponse<void, void>> deleteAccount() async {
+    final response = await client.dio.delete("/api/v1/user/delete-me");
+
+    return ApiResponseHandler.handleResponse(response, (json) => null, null);
   }
 }

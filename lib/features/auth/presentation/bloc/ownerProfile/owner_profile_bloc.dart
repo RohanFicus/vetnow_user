@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vetnow_user/core/storage/secure_storage_service.dart';
 import 'package:vetnow_user/features/auth/data/models/dashboard_response_model.dart';
 import 'package:vetnow_user/features/auth/domain/entities/owner_profile_entity.dart';
+import 'package:vetnow_user/features/auth/domain/usecases/delete_account_usecase.dart';
 import 'package:vetnow_user/features/auth/domain/usecases/owner_profile_usecase.dart';
 
 import 'owner_profile_event.dart';
@@ -11,10 +12,14 @@ import 'owner_profile_state.dart';
 
 class OwnerProfileBloc extends Bloc<OwnerProfileEvent, OwnerProfileState> {
   final OwnerProfileUseCase ownerProfileUseCase;
+  final DeleteAccountUseCase deleteAccountUseCase;
   final SecureStorageService storageService;
 
-  OwnerProfileBloc(this.ownerProfileUseCase, this.storageService)
-    : super(OwnerProfileState.initial()) {
+  OwnerProfileBloc(
+    this.ownerProfileUseCase,
+    this.deleteAccountUseCase,
+    this.storageService,
+  ) : super(OwnerProfileState.initial()) {
     on<FirstNameChanged>(_onFirstNameChanged);
     on<LastNameChanged>(_onLastNameChanged);
     on<EmailChanged>(_onEmailNameChanged);
@@ -28,6 +33,7 @@ class OwnerProfileBloc extends Bloc<OwnerProfileEvent, OwnerProfileState> {
     on<OwnerProfileCallLocally>(_onOwnerProfileCallLocally);
     on<OwnerDashBoardCallLocally>(_onOwnerDashBoardCallLocally);
     on<ClearSharedPref>(_onClearSharedPref);
+    on<DeleteAccount>(_onDeleteAccount);
   }
 
   void _onFirstNameChanged(
@@ -172,6 +178,20 @@ class OwnerProfileBloc extends Bloc<OwnerProfileEvent, OwnerProfileState> {
     await storageService.clearAll();
     if (petProfile.id != null) {
       emit(state.copyWith(isLoading: false, error: "Logged Out"));
+    }
+  }
+
+  Future<void> _onDeleteAccount(
+    DeleteAccount event,
+    Emitter<OwnerProfileState> emit,
+  ) async {
+    emit(state.copyWith(isLoading: true, error: null));
+    try {
+      await deleteAccountUseCase();
+      await storageService.clearAll();
+      emit(state.copyWith(isLoading: false, error: "Account Deleted"));
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, error: "Failed to delete account"));
     }
   }
 }

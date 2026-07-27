@@ -91,6 +91,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<void> deleteAccount() async {
+    await remoteDataSource.deleteAccount();
+  }
+
+  @override
   Future<UserLocalModel> getLocalUser() async {
     // TODO: implement getLocalUser
     throw UnimplementedError();

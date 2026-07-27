@@ -45,6 +45,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchSlots();
+      context.read<DashboardBloc>().add(FetchAllSpeciesEvent());
     });
   }
 
@@ -876,143 +877,161 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     );
   }
 
-  Future<void> _showSpeciesBottomSheet(DashboardState state) async {
-    // Collect unique species from pets
-    final Map<String, Species> uniqueSpecies = {};
-    for (var pet in state.pets) {
-      final p = pet.profile;
-      if (p != null &&
-          p.speciesId != null &&
-          !uniqueSpecies.containsKey(p.speciesId)) {
-        uniqueSpecies[p.speciesId!] = Species(
-          id: p.speciesId,
-          nameEn: p.speciesName ?? "Species",
-        );
-      }
-    }
-
-    final speciesList = uniqueSpecies.values.toList();
+  Future<void> _showSpeciesBottomSheet(DashboardState initialState) async {
+    final dashboardBloc = context.read<DashboardBloc>();
 
     await showModalBottomSheet<void>(
       context: context,
       backgroundColor: context.appSurface,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Text(
-                  "Book By Species",
-                  style: TextStyle(
-                    color: context.appText,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  "Select the species for which you want to book an appointment.",
-                  style: TextStyle(color: context.appMutedText, fontSize: 13),
-                ),
-                const SizedBox(height: 18),
-                if (speciesList.isEmpty)
-                  Center(
+        return BlocProvider.value(
+          value: dashboardBloc,
+          child: DraggableScrollableSheet(
+            initialChildSize: 0.6,
+            minChildSize: 0.4,
+            maxChildSize: 0.9,
+            expand: false,
+            builder: (context, scrollController) {
+              return BlocBuilder<DashboardBloc, DashboardState>(
+                builder: (context, state) {
+                  final speciesList = state.allSpecies;
+                  return SafeArea(
                     child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Text(
-                        "No species found. Please add a pet first.",
-                        style: TextStyle(color: context.appMutedText),
-                      ),
-                    ),
-                  )
-                else
-                  GridView.builder(
-                    shrinkWrap: true,
-                    itemCount: speciesList.length,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                          childAspectRatio: 1.6,
-                        ),
-                    itemBuilder: (context, index) {
-                      final species = speciesList[index];
-                      final isSelected = _selectedSpecies?.id == species.id;
-
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedSpecies = species;
-                            _selectedPet = null;
-                            selectedTime = null;
-                            _selectedSymptoms.clear();
-                          });
-                          if (species.id != null) {
-                            context.read<DashboardBloc>().add(
-                              FetchSymptomsEvent(species.id!),
-                            );
-                          }
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? AppColors.primary
-                                : context.appSurfaceVariant,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: isSelected
-                                  ? AppColors.primary
-                                  : context.appBorder,
+                      padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center(
+                            child: Container(
+                              width: 40,
+                              height: 4,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade300,
+                                borderRadius: BorderRadius.circular(999),
+                              ),
                             ),
                           ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                PetUtils.getSpeciesIcon(species.nameEn),
-                                color: isSelected
-                                    ? Colors.white
-                                    : AppColors.primary,
+                          const SizedBox(height: 18),
+                          Text(
+                            "Book By Species",
+                            style: TextStyle(
+                              color: context.appText,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            "Select the species for which you want to book an appointment.",
+                            style: TextStyle(
+                              color: context.appMutedText,
+                              fontSize: 13,
+                            ),
+                          ),
+                          const SizedBox(height: 18),
+                          if (state.isLoading && speciesList.isEmpty)
+                            const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(20.0),
+                                child: CircularProgressIndicator(),
                               ),
-                              const SizedBox(height: 10),
-                              Text(
-                                species.nameEn ?? "Species",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  color: isSelected
-                                      ? Colors.white
-                                      : context.appText,
+                            )
+                          else if (speciesList.isEmpty)
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(20.0),
+                                child: Text(
+                                  "No species found.",
+                                  style: TextStyle(color: context.appMutedText),
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-              ],
-            ),
+                            )
+                          else
+                            Expanded(
+                              child: GridView.builder(
+                                controller: scrollController,
+                                itemCount: speciesList.length,
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      crossAxisSpacing: 12,
+                                      mainAxisSpacing: 12,
+                                      childAspectRatio: 1.6,
+                                    ),
+                                itemBuilder: (context, index) {
+                                  final species = speciesList[index];
+                                  final isSelected =
+                                      _selectedSpecies?.id == species.id;
+
+                                  return GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _selectedSpecies = species;
+                                        _selectedPet = null;
+                                        selectedTime = null;
+                                        _selectedSymptoms.clear();
+                                      });
+                                      if (species.id != null) {
+                                        context.read<DashboardBloc>().add(
+                                          FetchSymptomsEvent(species.id!),
+                                        );
+                                      }
+                                      Navigator.pop(context);
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: isSelected
+                                            ? AppColors.primary
+                                            : context.appSurfaceVariant,
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: isSelected
+                                              ? AppColors.primary
+                                              : context.appBorder,
+                                        ),
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            PetUtils.getSpeciesIcon(
+                                              species.nameEn,
+                                            ),
+                                            color: isSelected
+                                                ? Colors.white
+                                                : AppColors.primary,
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Text(
+                                            species.nameEn ?? "Species",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              color: isSelected
+                                                  ? Colors.white
+                                                  : context.appText,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
           ),
         );
       },

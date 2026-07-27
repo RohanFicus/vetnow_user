@@ -39,7 +39,6 @@ class CityChanged extends OwnerProfileEvent {
   List<Object?> get props => [city];
 }
 
-
 class CountryChanged extends OwnerProfileEvent {
   final String country;
   const CountryChanged(this.country);
@@ -62,10 +61,15 @@ class AddressSelected extends OwnerProfileEvent {
   final String city;
   final String address;
 
-  const AddressSelected({required this.country, required this.state, required this.city, required this.address});
+  const AddressSelected({
+    required this.country,
+    required this.state,
+    required this.city,
+    required this.address,
+  });
 
   @override
-  List<Object?> get props => [country, state, city , address];
+  List<Object?> get props => [country, state, city, address];
 }
 
 class OnSubmitted extends OwnerProfileEvent {}
@@ -75,3 +79,5 @@ class OwnerProfileCallLocally extends OwnerProfileEvent {}
 class OwnerDashBoardCallLocally extends OwnerProfileEvent {}
 
 class ClearSharedPref extends OwnerProfileEvent {}
+
+class DeleteAccount extends OwnerProfileEvent {}

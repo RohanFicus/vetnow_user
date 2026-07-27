@@ -105,4 +105,10 @@ class DashboardRepositoryImpl implements DashboardRepository {
     );
     return response.data ?? AvailableSlotsModel();
   }
+
+  @override
+  Future<List<Species>> getSpecies() async {
+    final response = await remoteDataSource.getSpeciesApi();
+    return response.data ?? [];
+  }
 }

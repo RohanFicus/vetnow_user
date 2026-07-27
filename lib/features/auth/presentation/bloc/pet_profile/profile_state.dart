@@ -60,7 +60,7 @@ class ProfileState extends Equatable {
 
   bool get isStep2Valid => weight != 0.0 && color.trim().isNotEmpty;
 
-  bool get isStep3Valid => medicalFile?.name.trim().isNotEmpty == true;
+  bool get isStep3Valid => medicalFile?.name.trim().isNotEmpty == false;
   //vaccineSelected != null &&
 
   const ProfileState({

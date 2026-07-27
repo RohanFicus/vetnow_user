@@ -26,4 +26,6 @@ abstract class AuthRepository {
     required String address,
     required File image,
   });
+
+  Future<void> deleteAccount();
 }

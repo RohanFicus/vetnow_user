@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
-import 'package:vetnow_user/core/network/api_client.dart';
-import 'package:vetnow_user/core/storage/secure_storage_service.dart';
-import 'package:vetnow_user/features/auth/data/datasources/auth_local_data_source.dart';
-import 'package:vetnow_user/features/auth/data/datasources/auth_remote_data_source.dart';
-import 'package:vetnow_user/features/auth/data/repositories/auth_repository_impl.dart';
-import 'package:vetnow_user/features/auth/domain/usecases/owner_profile_usecase.dart';
+import 'package:vetnow_user/core/di/service_locator.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/ownerProfile/owner_profile_bloc.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/ownerProfile/owner_profile_event.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/ownerProfile/owner_profile_state.dart';
@@ -26,18 +21,9 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          OwnerProfileBloc(
-              OwnerProfileUseCase(
-                AuthRepositoryImpl(
-                  AuthRemoteDataSourceImpl(ApiClient()),
-                  AuthLocalDataSourceImpl(),
-                ),
-              ),
-              SecureStorageService(),
-            )
-            ..add(OwnerProfileCallLocally())
-            ..add(OwnerDashBoardCallLocally()),
+      create: (_) => sl<OwnerProfileBloc>()
+        ..add(OwnerProfileCallLocally())
+        ..add(OwnerDashBoardCallLocally()),
       child: BlocListener<OwnerProfileBloc, OwnerProfileState>(
         listenWhen: (previous, current) =>
             previous.isLoading != current.isLoading ||
@@ -48,9 +34,10 @@ class SettingsScreen extends StatelessWidget {
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(SnackBar(content: Text(state.error!)));
-            Navigator.push(
+            Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => SignInScreen()),
+              (route) => false,
             );
           }
         },
@@ -324,11 +311,11 @@ class SettingsScreen extends StatelessWidget {
                     // Added these to trigger the dialogs shown in your design
                     _buildSettingsTile(
                       context,
-                      icon: Icons.delete_outline,
+                      icon: Icons.person_remove_outlined,
                       color: Colors.red.shade50,
                       iconColor: Colors.red,
-                      title: "Delete Data",
-                      subtitle: "Remove all app data",
+                      title: "Delete Account",
+                      subtitle: "Permanently delete your account",
                       onTap: () => _showDeleteDialog(context),
                     ),
                     _buildSettingsTile(
@@ -438,7 +425,7 @@ class SettingsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                "Delete All Data?",
+                "Delete Account?",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -447,7 +434,7 @@ class SettingsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                "This will permanently delete all your data including pet profile, appointments, and timeline activities. This action cannot be undone.",
+                "Are you sure you want to delete your account? This will permanently remove all your data including pet profiles, appointments, and activities. This action cannot be undone.",
                 textAlign: TextAlign.center,
                 style: TextStyle(color: context.appMutedText, height: 1.5),
               ),
@@ -473,7 +460,10 @@ class SettingsScreen extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        context.read<OwnerProfileBloc>().add(DeleteAccount());
+                        Navigator.pop(context);
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         padding: const EdgeInsets.symmetric(vertical: 14),
@@ -482,7 +472,7 @@ class SettingsScreen extends StatelessWidget {
                         ),
                       ),
                       child: const Text(
-                        "Delete & Reset",
+                        "Delete Account",
                         style: TextStyle(color: Colors.white),
                       ),
                     ),

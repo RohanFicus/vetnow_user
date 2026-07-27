@@ -12,6 +12,7 @@ class DashboardState extends Equatable {
   final List<Pets> pets;
   final List<AppointmentResponse> appointments; // ✅ ADDED
   final List<SymptomsResponseModel> symptomsList; // ✅ ADDED
+  final List<Species> allSpecies; // ✅ ADDED
   final AvailableSlotsModel? availableSlots; // ✅ ADDED
 
   final DoctorProfileResponse? doctorProfile; // ✅ ADDED
@@ -41,6 +42,7 @@ class DashboardState extends Equatable {
     this.pets = const [],
     this.appointments = const [], // ✅
     this.symptomsList = const [], // ✅
+    this.allSpecies = const [], // ✅
     this.availableSlots, // ✅
     this.doctorProfile, // ✅
     this.doctorAvailability,
@@ -66,6 +68,7 @@ class DashboardState extends Equatable {
     pets: [],
     appointments: [], // ✅
     symptomsList: [], // ✅
+    allSpecies: [], // ✅
     availableSlots: null, // ✅
     doctorProfile: null, // ✅
     doctorAvailability: null,
@@ -91,6 +94,7 @@ class DashboardState extends Equatable {
     List<Pets>? pets,
     List<AppointmentResponse>? appointments, // ✅
     List<SymptomsResponseModel>? symptomsList, // ✅
+    List<Species>? allSpecies, // ✅
     AvailableSlotsModel? availableSlots, // ✅
     DoctorProfileResponse? doctorProfile, // ✅
     DoctorAvailabilityResponse? doctorAvailability,
@@ -119,6 +123,7 @@ class DashboardState extends Equatable {
       pets: pets ?? this.pets,
       appointments: appointments ?? this.appointments, // ✅
       symptomsList: symptomsList ?? this.symptomsList, // ✅
+      allSpecies: allSpecies ?? this.allSpecies, // ✅
       availableSlots: availableSlots ?? this.availableSlots, // ✅
       doctorProfile: doctorProfile ?? this.doctorProfile, // ✅
       doctorAvailability: doctorAvailability ?? this.doctorAvailability,
@@ -131,7 +136,8 @@ class DashboardState extends Equatable {
       bookingSuccess: bookingSuccess ?? this.bookingSuccess, // ✅
       paymentSuccess: paymentSuccess ?? this.paymentSuccess, // ✅
       selectedSpeciesId: selectedSpeciesId ?? this.selectedSpeciesId,
-      lastBookedAppointment: lastBookedAppointment ?? this.lastBookedAppointment, // ✅
+      lastBookedAppointment:
+          lastBookedAppointment ?? this.lastBookedAppointment, // ✅
       error: error,
 
       firstName: firstName ?? this.firstName,
@@ -141,7 +147,7 @@ class DashboardState extends Equatable {
 
       currentStep: currentStep ?? this.currentStep,
       assessmentSuccessModel:
-      assessmentSuccessModel ?? this.assessmentSuccessModel,
+          assessmentSuccessModel ?? this.assessmentSuccessModel,
     );
   }
 
@@ -151,6 +157,7 @@ class DashboardState extends Equatable {
     pets,
     appointments,
     symptomsList,
+    allSpecies,
     availableSlots, // ✅
     doctorProfile, // ✅ IMPORTANT
     doctorAvailability,

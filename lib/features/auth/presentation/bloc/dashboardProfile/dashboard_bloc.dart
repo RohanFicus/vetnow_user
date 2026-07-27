@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vetnow_user/core/network/api_exception.dart';
 import 'package:vetnow_user/core/storage/secure_storage_service.dart';
 import 'package:vetnow_user/features/auth/data/models/dashboard_response_model.dart';
 import 'package:vetnow_user/features/auth/domain/entities/assessment_question_entity.dart';
@@ -29,6 +28,20 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     on<VerifyPaymentEvent>(_onVerifyPayment);
     on<FetchSymptomsEvent>(_onFetchSymptoms);
     on<FetchAvailableSlotsEvent>(_onFetchAvailableSlots);
+    on<FetchAllSpeciesEvent>(_onFetchAllSpecies);
+  }
+
+  Future<void> _onFetchAllSpecies(
+    FetchAllSpeciesEvent event,
+    Emitter<DashboardState> emit,
+  ) async {
+    emit(state.copyWith(isLoading: true, error: null));
+    try {
+      final species = await dashboardUseCase.getSpecies();
+      emit(state.copyWith(isLoading: false, allSpecies: species));
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, error: e.toString()));
+    }
   }
 
   Future<void> _onFetchAvailableSlots(
@@ -87,8 +100,9 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
   ) async {
     emit(state.copyWith(isLoading: true, error: null, bookingSuccess: false));
     try {
-      final appointmentBookingResponse =
-          await dashboardUseCase.bookAppointment(event.appointmentRequest);
+      final appointmentBookingResponse = await dashboardUseCase.bookAppointment(
+        event.appointmentRequest,
+      );
       emit(
         state.copyWith(
           isLoading: false,
@@ -275,7 +289,9 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
 
       emit(state.copyWith(isLoading: false, assessmentSuccessModel: result));
     } catch (e) {
-      emit(state.copyWith(isLoading: false, error: "Failed to submit assessment"));
+      emit(
+        state.copyWith(isLoading: false, error: "Failed to submit assessment"),
+      );
     }
   }
 }
