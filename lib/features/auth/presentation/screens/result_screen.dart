@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vetnow_user/core/theme/app_theme_colors.dart';
 import 'package:vetnow_user/features/auth/data/models/assessment_success_model.dart';
 
 import 'dashboard_screen.dart';
@@ -13,7 +14,7 @@ class ResultScreen extends StatelessWidget {
     print("Answers ${assessmentSuccessData?.toJson()}");
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F9),
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -53,7 +54,7 @@ class ResultScreen extends StatelessWidget {
                   bottom: -40,
                   child: CircleAvatar(
                     radius: 56,
-                    backgroundColor: Colors.white,
+                    backgroundColor: context.appBackground,
                     child: CircleAvatar(
                       radius: 52,
                       backgroundImage: NetworkImage(
@@ -70,7 +71,11 @@ class ResultScreen extends StatelessWidget {
             /// 🔹 Title
             Text(
               "${assessmentSuccessData?.pet?.name}'s Health Result",
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: context.appText,
+              ),
             ),
 
             Padding(
@@ -78,21 +83,21 @@ class ResultScreen extends StatelessWidget {
               child: Text(
                 assessmentSuccessData?.warningMessage?.textEn ?? '',
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.grey),
+                style: TextStyle(color: context.appMutedText),
               ),
             ),
 
-            /// 🔹 White Result Card
+            /// 🔹 Adaptive Result Card
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.appSurface,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
+                        color: context.appShadow,
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -104,7 +109,9 @@ class ResultScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.red.shade50,
+                          color: context.isDarkMode
+                              ? Colors.red.withOpacity(0.15)
+                              : Colors.red.shade50,
                           borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(20),
                           ),
@@ -113,12 +120,19 @@ class ResultScreen extends StatelessWidget {
                           children: [
                             Icon(
                               Icons.warning_amber_rounded,
-                              color: Colors.red.shade400,
+                              color: context.isDarkMode
+                                  ? Colors.red.shade300
+                                  : Colors.red.shade400,
                             ),
                             const SizedBox(width: 8),
-                            const Text(
+                            Text(
                               "Needs Attention",
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: context.isDarkMode
+                                    ? Colors.red.shade300
+                                    : Colors.red.shade900,
+                              ),
                             ),
                           ],
                         ),
@@ -139,6 +153,7 @@ class ResultScreen extends StatelessWidget {
                               item.valueEn ?? '',
                               Colors.red.shade50,
                               Colors.red,
+                              context,
                             );
                           },
                         ),
@@ -217,30 +232,45 @@ class ResultScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildResultItem(
+   Widget _buildResultItem(
     String title,
     String status,
     Color bg,
     Color textCol,
+    BuildContext context,
   ) {
     return Container(
-      margin: EdgeInsets.only(top: 5),
-      padding: EdgeInsets.all(10),
+      margin: const EdgeInsets.only(top: 5),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceVariant,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
-              Text(status, style: TextStyle(color: Colors.grey, fontSize: 12)),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: context.appText,
+                  ),
+                ),
+                Text(
+                  status,
+                  style: TextStyle(color: context.appMutedText, fontSize: 12),
+                ),
+              ],
+            ),
           ),
-          Icon(Icons.warning, color: Colors.red[200]),
+          Icon(
+            Icons.warning,
+            color: context.isDarkMode ? Colors.red.shade300 : Colors.red[200],
+          ),
         ],
       ),
     );

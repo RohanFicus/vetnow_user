@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vetnow_user/core/theme/app_theme_colors.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -55,19 +56,19 @@ class _NotificationScreenState extends State<NotificationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FB),
+      backgroundColor: context.appBackground,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.appBackground,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: Colors.black, size: 30),
+          icon: Icon(Icons.chevron_left, color: context.appText, size: 30),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           "Notifications",
           style: TextStyle(
-            color: Colors.black,
+            color: context.appText,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -117,11 +118,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.appSurface,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: context.appShadow,
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -161,8 +162,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   const SizedBox(height: 4),
                   Text(
                     item['desc'],
-                    style: const TextStyle(
-                      color: Colors.grey,
+                    style: TextStyle(
+                      color: context.appMutedText,
                       fontSize: 13,
                       height: 1.4,
                     ),
@@ -170,7 +171,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   const SizedBox(height: 8),
                   Text(
                     item['time'],
-                    style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
+                    style: TextStyle(color: context.appMutedText.withOpacity(0.8), fontSize: 11),
                   ),
                 ],
               ),
@@ -221,12 +222,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
           Icon(
             Icons.notifications_off_outlined,
             size: 80,
-            color: Colors.grey.shade300,
+            color: context.appBorder,
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             "No notifications yet",
-            style: TextStyle(color: Colors.grey, fontSize: 16),
+            style: TextStyle(color: context.appMutedText, fontSize: 16),
           ),
         ],
       ),

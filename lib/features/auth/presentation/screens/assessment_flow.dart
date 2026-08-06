@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vetnow_user/core/theme/app_theme_colors.dart';
 import 'package:vetnow_user/core/di/service_locator.dart';
 import 'package:vetnow_user/core/network/api_client.dart';
 import 'package:vetnow_user/core/storage/secure_storage_service.dart';
@@ -161,18 +162,18 @@ class AssessmentFlow extends StatelessWidget {
               (e) => e.category == q?.category,
             );
             return Scaffold(
-              backgroundColor: Colors.white,
+              backgroundColor: context.appBackground,
               appBar: AppBar(
-                backgroundColor: Colors.white,
+                backgroundColor: context.appBackground,
                 elevation: 0,
                 title: Text(
                   "Pet Health Assessment",
-                  style: TextStyle(color: Colors.black, fontSize: 16),
+                  style: TextStyle(color: context.appText, fontSize: 16),
                 ),
                 centerTitle: true,
                 actions: [
                   IconButton(
-                    icon: Icon(Icons.close, color: Colors.grey),
+                    icon: Icon(Icons.close, color: context.appMutedText),
                     onPressed: () {
                       Navigator.pop(context);
                     },
@@ -181,7 +182,7 @@ class AssessmentFlow extends StatelessWidget {
               ),
               body: Column(
                 children: [
-                  _buildStepper(q?.category, state),
+                  _buildStepper(q?.category, state, context),
                   Expanded(
                     child: SingleChildScrollView(
                       padding: EdgeInsets.all(20),
@@ -212,6 +213,7 @@ class AssessmentFlow extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
+                              color: context.appText,
                             ),
                           ),
                           SizedBox(height: 25),
@@ -266,7 +268,7 @@ class AssessmentFlow extends StatelessWidget {
     );
   }
 
-  Widget _buildStepper(String? currentCat, DashboardState state) {
+  Widget _buildStepper(String? currentCat, DashboardState state, BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: state.categories!.map((cat) {
@@ -279,13 +281,13 @@ class AssessmentFlow extends StatelessWidget {
           children: [
             Icon(
               isDone ? Icons.check_circle : Icons.radio_button_unchecked,
-              color: isDone || isActive ? Colors.blue : Colors.grey[300],
+              color: isDone || isActive ? Colors.blue : (context.isDarkMode ? Colors.grey.shade700 : Colors.grey[300]),
             ),
             Text(
               cat,
               style: TextStyle(
                 fontSize: 10,
-                color: isActive ? Colors.blue : Colors.grey,
+                color: isActive ? Colors.blue : context.appMutedText,
               ),
             ),
           ],
@@ -326,19 +328,23 @@ class AssessmentFlow extends StatelessWidget {
         margin: EdgeInsets.only(bottom: 12),
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
+          color: context.appSurface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? Colors.blue : Colors.grey[200]!,
+            color: isSelected ? Colors.blue : context.appBorder,
             width: 1.5,
           ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(opt.labelEn.toString(), style: TextStyle(fontSize: 16)),
+            Text(
+              opt.labelEn.toString(),
+              style: TextStyle(fontSize: 16, color: context.appText),
+            ),
             Icon(
               isSelected ? Icons.check_circle : Icons.circle_outlined,
-              color: isSelected ? Colors.green : Colors.grey[300],
+              color: isSelected ? Colors.green : context.appMutedText,
             ),
           ],
         ),

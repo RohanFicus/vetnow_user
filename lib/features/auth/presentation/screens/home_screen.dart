@@ -5,20 +5,20 @@ import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:vetnow_user/core/theme/app_color.dart';
 import 'package:vetnow_user/core/theme/app_theme_colors.dart';
+import 'package:vetnow_user/core/utils/pet_utils.dart';
 import 'package:vetnow_user/features/auth/data/models/dashboard_response_model.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/dashboardProfile/dashboard_bloc.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/dashboardProfile/dashboard_event.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/dashboardProfile/dashboard_state.dart';
+import 'package:vetnow_user/features/auth/presentation/screens/assessment_flow.dart';
 import 'package:vetnow_user/features/auth/presentation/screens/book_appointment_screen.dart';
 import 'package:vetnow_user/features/auth/presentation/screens/dashboard_screen.dart';
 import 'package:vetnow_user/features/auth/presentation/screens/my_doctor_screen.dart';
 import 'package:vetnow_user/features/auth/presentation/screens/my_petslist_screen.dart';
-import 'package:vetnow_user/features/auth/presentation/screens/pet_profiledetail_screen.dart';
 import 'package:vetnow_user/features/auth/presentation/screens/notification_screen.dart';
+import 'package:vetnow_user/features/auth/presentation/screens/pet_profiledetail_screen.dart';
 import 'package:vetnow_user/features/auth/presentation/screens/settings_screen.dart';
 
-import 'package:vetnow_user/features/auth/presentation/screens/assessment_flow.dart';
-import 'package:vetnow_user/core/utils/pet_utils.dart';
 import '../components/AppButton.dart';
 import 'add_pet_wizard_screen.dart';
 
@@ -86,25 +86,37 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             children: [
               _buildModernHeaderBackground(context),
               SafeArea(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.only(bottom: 100),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildTopProfileRow(context, state),
-                      const SizedBox(height: 20),
-                      _buildPetSection(context, state),
-                      const SizedBox(height: 30),
-                      _buildQuickActionsSection(context),
-                      const SizedBox(height: 30),
-                      _buildUpcomingAppointments(context, state),
-                      const SizedBox(height: 30),
-                      _buildMedicalRecordsSection(context, state),
-                      const SizedBox(height: 30),
-                      _buildTimelineSection(context, state),
-                      _buildFooterBranding(context),
-                    ],
+                child: RefreshIndicator(
+                  color: const Color(0xFF0061CE),
+                  backgroundColor: context.appSurface,
+                  onRefresh: () async {
+                    context.read<DashboardBloc>().add(OnDashboardCall());
+                    await context.read<DashboardBloc>().stream.firstWhere(
+                      (state) => !state.isLoading,
+                    );
+                  },
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
+                    padding: const EdgeInsets.only(bottom: 100),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildTopProfileRow(context, state),
+                        const SizedBox(height: 20),
+                        _buildPetSection(context, state),
+                        const SizedBox(height: 30),
+                        _buildQuickActionsSection(context),
+                        const SizedBox(height: 30),
+                        _buildUpcomingAppointments(context, state),
+                        const SizedBox(height: 30),
+                        _buildMedicalRecordsSection(context, state),
+                        const SizedBox(height: 30),
+                        _buildTimelineSection(context, state),
+                        _buildFooterBranding(context),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -349,7 +361,7 @@ Widget _buildPassportCard(BuildContext context, Pets pet) {
                 ],
               ),
             ),
-            _buildAssessmentAction(context, pet),
+            //_buildAssessmentAction(context, pet),
           ],
         ),
 
@@ -525,9 +537,7 @@ Widget _buildQuickActionsSection(BuildContext context) {
               Colors.redAccent,
               () => Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const MyDoctorScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => const MyDoctorScreen()),
               ),
             ),
 
@@ -594,7 +604,11 @@ Widget _buildUpcomingAppointments(BuildContext context, DashboardState state) {
                     color: AppColors.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.event_busy, color: AppColors.primary, size: 24),
+                  child: Icon(
+                    Icons.event_busy,
+                    color: AppColors.primary,
+                    size: 24,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -662,7 +676,9 @@ Widget _buildUpcomingAppointments(BuildContext context, DashboardState state) {
         ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: state.appointments.length > 2 ? 2 : state.appointments.length,
+          itemCount: state.appointments.length > 2
+              ? 2
+              : state.appointments.length,
           separatorBuilder: (context, index) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             final appointment = state.appointments[index];
@@ -674,7 +690,10 @@ Widget _buildUpcomingAppointments(BuildContext context, DashboardState state) {
   );
 }
 
-Widget _buildAppointmentCard(BuildContext context, AppointmentResponse appointment) {
+Widget _buildAppointmentCard(
+  BuildContext context,
+  AppointmentResponse appointment,
+) {
   DateTime? appointmentDate;
   if (appointment.appointmentDate != null) {
     try {
@@ -710,7 +729,7 @@ Widget _buildAppointmentCard(BuildContext context, AppointmentResponse appointme
           child: Column(
             children: [
               Text(
-                appointmentDate != null 
+                appointmentDate != null
                     ? DateFormat('dd').format(appointmentDate)
                     : (appointment.appointmentDate?.split('-').last ?? "00"),
                 style: GoogleFonts.plusJakartaSans(
@@ -720,7 +739,7 @@ Widget _buildAppointmentCard(BuildContext context, AppointmentResponse appointme
                 ),
               ),
               Text(
-                appointmentDate != null 
+                appointmentDate != null
                     ? DateFormat('MMM').format(appointmentDate)
                     : "---",
                 style: GoogleFonts.plusJakartaSans(
@@ -760,7 +779,11 @@ Widget _buildAppointmentCard(BuildContext context, AppointmentResponse appointme
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Icon(Icons.access_time, size: 12, color: context.appMutedText),
+                  Icon(
+                    Icons.access_time,
+                    size: 12,
+                    color: context.appMutedText,
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     appointment.appointmentTime ?? "00:00",
@@ -779,7 +802,9 @@ Widget _buildAppointmentCard(BuildContext context, AppointmentResponse appointme
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-            color: _getStatusColor(appointment.status ?? "").withValues(alpha: 0.1),
+            color: _getStatusColor(
+              appointment.status ?? "",
+            ).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Text(
@@ -812,8 +837,10 @@ Color _getStatusColor(String status) {
 // --- 6. MEDICAL RECORDS SECTION ---
 Widget _buildMedicalRecordsSection(BuildContext context, DashboardState state) {
   // Get all documents from all pets
-  final allDocs = state.pets.expand((pet) => pet.documents ?? <DocumentsDetail>[]).toList();
-  
+  final allDocs = state.pets
+      .expand((pet) => pet.documents ?? <DocumentsDetail>[])
+      .toList();
+
   if (allDocs.isEmpty) return const SizedBox.shrink();
 
   return Padding(
@@ -885,7 +912,11 @@ Widget _buildMedicalRecordsSection(BuildContext context, DashboardState state) {
                         color: Colors.green.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(Icons.description, color: Colors.green, size: 20),
+                      child: const Icon(
+                        Icons.description,
+                        color: Colors.green,
+                        size: 20,
+                      ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
@@ -933,7 +964,9 @@ Widget _buildTimelineSection(BuildContext context, DashboardState state) {
     if (app.appointmentDate == null) return false;
     try {
       final date = DateTime.parse(app.appointmentDate!);
-      return date.year == now.year && date.month == now.month && date.day == now.day;
+      return date.year == now.year &&
+          date.month == now.month &&
+          date.day == now.day;
     } catch (_) {
       return false;
     }
@@ -1027,7 +1060,11 @@ Widget _buildTimelineSection(BuildContext context, DashboardState state) {
                         color: Colors.blue.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.calendar_today, color: Colors.blue, size: 20),
+                      child: const Icon(
+                        Icons.calendar_today,
+                        color: Colors.blue,
+                        size: 20,
+                      ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -1103,7 +1140,7 @@ Widget _buildActionTile(
   Color iconColor,
   VoidCallback onClick,
 ) {
-    return GestureDetector(
+  return GestureDetector(
     onTap: onClick,
     child: Column(
       children: [
@@ -1240,10 +1277,8 @@ Widget _buildProfileIcon(BuildContext context, DashboardState state) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => BlocProvider.value(
-            value: bloc,
-            child: const SettingsScreen(),
-          ),
+          builder: (_) =>
+              BlocProvider.value(value: bloc, child: const SettingsScreen()),
         ),
       );
     },

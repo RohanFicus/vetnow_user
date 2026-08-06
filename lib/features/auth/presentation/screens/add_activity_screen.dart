@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vetnow_user/core/theme/app_theme_colors.dart';
 
 import '../components/app_bar.dart';
 import '../components/AppButton.dart';
@@ -22,7 +23,7 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.appBackground,
       appBar: buildSimpleAppBar(context, "Add Activity"),
 
       body: Column(
@@ -75,11 +76,11 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                           height: 100,
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: Colors.grey.shade300,
+                              color: context.appBorder,
                               style: BorderStyle.solid,
                             ),
                             borderRadius: BorderRadius.circular(12),
-                            color: Colors.grey.shade50,
+                            color: context.appSurfaceVariant,
                           ),
                           child: const Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -108,7 +109,7 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                   ),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
-                    decoration: _inputDecoration("Select activity type"),
+                    decoration: _inputDecoration(context, "Select activity type"),
                     items: ["Vet Visit", "Walking", "Feeding"]
                         .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                         .toList(),
@@ -127,6 +128,7 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                     maxLines: 4,
                     onChanged: (v) => setState(() {}),
                     decoration: _inputDecoration(
+                      context,
                       "Add notes about this activity...",
                     ),
                   ),
@@ -154,6 +156,7 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                       }
                     },
                     decoration: _inputDecoration(
+                      context,
                       selectedTime ?? "Select time",
                     ).copyWith(suffixIcon: const Icon(Icons.access_time)),
                   ),
@@ -186,17 +189,17 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
     );
   }
 
-  InputDecoration _inputDecoration(String hint) {
+  InputDecoration _inputDecoration(BuildContext context, String hint) {
     return InputDecoration(
       hintText: hint,
       hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.grey.shade200),
+        borderSide: BorderSide(color: context.appBorder),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.grey.shade200),
+        borderSide: BorderSide(color: context.appBorder),
       ),
     );
   }

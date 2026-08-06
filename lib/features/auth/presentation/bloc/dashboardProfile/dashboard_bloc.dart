@@ -170,7 +170,36 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
       throw Exception("Request ID not found");
     }
     print("Pressed");
-    emit(state.copyWith(isLoading: true, error: null));
+    final hasStateData = state.user != null;
+
+    if (hasStateData) {
+      emit(state.copyWith(error: null));
+    } else {
+      try {
+        final cachedJson = await storageService.getDashboardDataJson();
+        if (cachedJson != null) {
+          final cachedDashBoard = DashBoardResponseModal.fromJson(cachedJson);
+          if (cachedDashBoard.user != null) {
+            emit(state.copyWith(
+              user: cachedDashBoard.user,
+              pets: cachedDashBoard.pets,
+              appointments: cachedDashBoard.appointmentResponseList,
+              doctorProfile: cachedDashBoard.doctorProfileResponse,
+              doctorAvailability: cachedDashBoard.doctorAvailabilityResponse,
+              isLoading: false,
+              error: null,
+            ));
+          } else {
+            emit(state.copyWith(isLoading: true, error: null));
+          }
+        } else {
+          emit(state.copyWith(isLoading: true, error: null));
+        }
+      } catch (_) {
+        emit(state.copyWith(isLoading: true, error: null));
+      }
+    }
+
     try {
       final result = await dashboardUseCase.getDashBoardApi();
       DashBoardResponseModal dashBoardResponseModal = result;
@@ -196,10 +225,13 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
           doctorProfile: result.doctorProfileResponse,
           doctorAvailability: result.doctorAvailabilityResponse,
           isLoading: false,
+          error: null,
         ),
       );
     } catch (e) {
-      emit(state.copyWith(isLoading: false, error: e.toString()));
+      if (state.user == null) {
+        emit(state.copyWith(isLoading: false, error: e.toString()));
+      }
     }
   }
 

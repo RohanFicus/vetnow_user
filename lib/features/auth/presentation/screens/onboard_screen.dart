@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vetnow_user/core/theme/app_theme_colors.dart';
 
 import './create_profile_screen.dart';
 
@@ -182,7 +183,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       height: 6,
       width: isActive ? 30 : 6, // Active is wide, inactive is circle
       decoration: BoxDecoration(
-        color: isActive ? const Color(0xFF0061CE) : Colors.grey.shade300,
+        color: isActive
+            ? const Color(0xFF0061CE)
+            : (context.isDarkMode ? Colors.grey.shade700 : Colors.grey.shade300),
         borderRadius: BorderRadius.circular(3),
       ),
     );
@@ -247,7 +250,7 @@ class OnboardingContent extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 16,
                     height: 1.5,
-                    color: Colors.grey.shade600,
+                    color: context.appMutedText,
                   ),
                 ),
               ],

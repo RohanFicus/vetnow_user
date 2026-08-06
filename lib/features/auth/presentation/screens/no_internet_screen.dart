@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vetnow_user/core/theme/app_theme_colors.dart';
 
 class NoInternetScreen extends StatelessWidget {
   const NoInternetScreen({super.key});
@@ -6,12 +7,12 @@ class NoInternetScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.appBackground,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.appBackground,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: context.appText),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -37,21 +38,25 @@ class NoInternetScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
 
-              const Text(
+              Text(
                 "No Internet Connection!",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: context.appText,
                 ),
               ),
               const SizedBox(height: 12),
 
-              const Text(
+              Text(
                 "Please check your internet settings and try again.",
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: Colors.grey, height: 1.5),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: context.appMutedText,
+                  height: 1.5,
+                ),
               ),
 
               const SizedBox(height: 48),
@@ -64,9 +69,8 @@ class NoInternetScreen extends StatelessWidget {
                     Navigator.pop(context); // Go back to dashboard on retry
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors
-                        .black, // Dark button as per some UI kits, or Blue
-                    foregroundColor: Colors.white,
+                    backgroundColor: context.isDarkMode ? Colors.white : Colors.black,
+                    foregroundColor: context.isDarkMode ? Colors.black : Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),

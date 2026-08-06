@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vetnow_user/core/theme/app_theme_colors.dart';
 import 'package:vetnow_user/core/di/service_locator.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/ownerProfile/owner_profile_bloc.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/ownerProfile/owner_profile_event.dart';
@@ -41,9 +42,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         child: BlocBuilder<OwnerProfileBloc, OwnerProfileState>(
           builder: (context, state) {
             return Scaffold(
-              backgroundColor: const Color(
-                0xFFF8FAFC,
-              ), // Modern off-white/blue tint
+              backgroundColor: context.appBackground,
               appBar: _buildSimpleAppBar(context, "Edit Profile"),
               body: SafeArea(
                 child: SingleChildScrollView(
@@ -56,11 +55,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.appSurface,
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
+                              color: context.appShadow,
                               blurRadius: 20,
                               offset: const Offset(0, 4),
                             ),
@@ -122,11 +121,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.appSurface,
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
+                              color: context.appShadow,
                               blurRadius: 20,
                               offset: const Offset(0, 4),
                             ),
@@ -224,17 +223,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildAvatarSection(OwnerProfileState state) {
+   Widget _buildAvatarSection(OwnerProfileState state) {
     return Center(
       child: Stack(
         children: [
           Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 4),
+              border: Border.all(color: context.appSurface, width: 4),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: context.appShadow,
                   blurRadius: 15,
                   offset: const Offset(0, 5),
                 ),
@@ -242,7 +241,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
             child: CircleAvatar(
               radius: 55,
-              backgroundColor: Colors.blue.shade50,
+              backgroundColor: context.appSoftPrimary,
               backgroundImage: (state.ownerProfileEntity?.profileImage != null)
                   ? NetworkImage(state.ownerProfileEntity!.profileImage!)
                   : null,
@@ -259,7 +258,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               decoration: BoxDecoration(
                 color: AppColors.primary,
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
+                border: Border.all(color: context.appSurface, width: 2),
               ),
               child: const Icon(
                 Icons.camera_alt,
@@ -286,34 +285,34 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 }
 
-// Updated AppBar Design
+ // Updated AppBar Design
 PreferredSizeWidget _buildSimpleAppBar(BuildContext context, String title) {
   return AppBar(
-    backgroundColor: const Color(0xFFF8FAFC),
+    backgroundColor: context.appBackground,
     elevation: 0,
     centerTitle: true,
     leading: IconButton(
       icon: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.appSurface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: context.appBorder),
         ),
-        child: const Icon(
+        child: Icon(
           Icons.arrow_back_ios_new,
           size: 14,
-          color: Colors.black,
+          color: context.appText,
         ),
       ),
       onPressed: () => Navigator.pop(context),
     ),
     title: Text(
       title,
-      style: const TextStyle(
-        color: Color(0xFF1E293B),
+      style: TextStyle(
+        color: context.appText,
+        fontWeight: FontWeight.bold,
         fontSize: 18,
-        fontWeight: FontWeight.w700,
       ),
     ),
   );
