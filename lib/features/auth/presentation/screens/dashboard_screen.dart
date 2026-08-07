@@ -17,6 +17,7 @@ import './home_screen.dart';
 import './bookings_screen.dart';
 import './add_activity_screen.dart';
 import './add_pet_wizard_screen.dart';
+import 'pet_profile_success_screen.dart';
 
 class MainDashboard extends StatefulWidget {
   final int initialIndex;
@@ -268,7 +269,22 @@ class _MainDashboardState extends State<MainDashboard> {
                           child: AddPetWizardScreen(
                             existing: false,
                             speciesModel: null,
-                            onComplete: () {},
+                            onComplete: () {
+                              _dashboardBloc.add(OnDashboardCall());
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => PetProfileSuccessScreen(
+                                    onAddAnother: () {
+                                      Navigator.pop(context);
+                                    },
+                                    onDashboard: () {
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
                             onBack: () => Navigator.pop(context),
                           ),
                         ),

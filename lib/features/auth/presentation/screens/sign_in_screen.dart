@@ -59,10 +59,10 @@ class SignInScreen extends StatelessWidget {
                           'assets/png/signup_bg.png',
                           fit: BoxFit.cover,
                           color: Theme.of(context).brightness == Brightness.dark 
-                              ? Colors.black.withOpacity(0.6) 
+                              ? Theme.of(context).scaffoldBackgroundColor 
                               : null,
                           colorBlendMode: Theme.of(context).brightness == Brightness.dark 
-                              ? BlendMode.darken 
+                              ? BlendMode.multiply 
                               : null,
                         ),
                       ),

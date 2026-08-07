@@ -21,6 +21,7 @@ import 'package:vetnow_user/features/auth/presentation/screens/settings_screen.d
 
 import '../components/AppButton.dart';
 import 'add_pet_wizard_screen.dart';
+import 'pet_profile_success_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -106,13 +107,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         _buildTopProfileRow(context, state),
                         const SizedBox(height: 20),
                         _buildPetSection(context, state),
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 20),
                         _buildQuickActionsSection(context),
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 20),
                         _buildUpcomingAppointments(context, state),
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 10),
                         _buildMedicalRecordsSection(context, state),
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 10),
                         _buildTimelineSection(context, state),
                         _buildFooterBranding(context),
                       ],
@@ -269,7 +270,22 @@ Widget _buildPetSection(BuildContext context, DashboardState state) {
                         child: AddPetWizardScreen(
                           existing: false,
                           speciesModel: null,
-                          onComplete: () {},
+                          onComplete: () {
+                            bloc.add(OnDashboardCall());
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => PetProfileSuccessScreen(
+                                  onAddAnother: () {
+                                    Navigator.pop(context);
+                                  },
+                                  onDashboard: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ),
+                            );
+                          },
                           onBack: () => Navigator.pop(context),
                         ),
                       ),
@@ -575,7 +591,7 @@ Widget _buildUpcomingAppointments(BuildContext context, DashboardState state) {
           Text(
             "Upcoming Appointments",
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.w800,
               color: context.appText,
             ),
@@ -646,7 +662,7 @@ Widget _buildUpcomingAppointments(BuildContext context, DashboardState state) {
             Text(
               "Upcoming Appointments",
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 18,
+                fontSize: 16,
                 fontWeight: FontWeight.w800,
                 color: context.appText,
               ),
@@ -982,19 +998,19 @@ Widget _buildTimelineSection(BuildContext context, DashboardState state) {
             Text(
               "Today's Activities",
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 18,
+                fontSize: 16,
                 fontWeight: FontWeight.w800,
                 color: context.appText,
               ),
             ),
-            Text(
-              "View All",
-              style: TextStyle(
-                color: AppColors.primary,
-                fontWeight: FontWeight.bold,
-                fontSize: 13,
-              ),
-            ),
+            // Text(
+            //   "View All",
+            //   style: TextStyle(
+            //     color: AppColors.primary,
+            //     fontWeight: FontWeight.bold,
+            //     fontSize: 13,
+            //   ),
+            // ),
           ],
         ),
         const SizedBox(height: 12),
@@ -1021,8 +1037,9 @@ Widget _buildTimelineSection(BuildContext context, DashboardState state) {
                 Text(
                   "No tasks for today",
                   style: GoogleFonts.plusJakartaSans(
-                    color: context.appMutedText,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: context.appText,
                   ),
                 ),
                 const SizedBox(height: 20),

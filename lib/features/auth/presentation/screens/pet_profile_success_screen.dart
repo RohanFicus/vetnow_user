@@ -12,6 +12,7 @@ import 'package:vetnow_user/features/auth/presentation/bloc/pet_profile/profile_
 import 'package:vetnow_user/features/auth/presentation/screens/dashboard_screen.dart';
 
 import '../../../../core/theme/app_color.dart';
+import 'package:vetnow_user/core/theme/app_theme_colors.dart';
 import '../components/AppButton.dart';
 
 class PetProfileSuccessScreen extends StatelessWidget {
@@ -41,7 +42,7 @@ class PetProfileSuccessScreen extends StatelessWidget {
         child: BlocBuilder<ProfileBloc, ProfileState>(
           builder: (context, state) {
             return Scaffold(
-              backgroundColor: const Color(0xFFF5F5F5),
+              backgroundColor: context.appBackground,
               // appBar: AppBar(
               //   elevation: 0,
               //   backgroundColor: Colors.transparent,
@@ -54,7 +55,7 @@ class PetProfileSuccessScreen extends StatelessWidget {
               // ),
               body: Stack(
                 children: [
-                  _buildSuccessHeader(),
+                  _buildSuccessHeader(context),
                   SafeArea(
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -63,7 +64,7 @@ class PetProfileSuccessScreen extends StatelessWidget {
                           const SizedBox(height: 20),
 
                           // 2. SUCCESS ICON
-                          _buildAnimatedSuccessIcon(),
+                          _buildAnimatedSuccessIcon(context),
 
                           Text(
                             "Registration Successful!",
@@ -71,7 +72,7 @@ class PetProfileSuccessScreen extends StatelessWidget {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 24,
                               fontWeight: FontWeight.w800,
-                              color: const Color(0xFF1E293B),
+                              color: context.appText,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -80,7 +81,7 @@ class PetProfileSuccessScreen extends StatelessWidget {
                             textAlign: TextAlign.center,
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 14,
-                              color: Colors.blueGrey,
+                              color: context.appMutedText,
                             ),
                           ),
 
@@ -88,7 +89,7 @@ class PetProfileSuccessScreen extends StatelessWidget {
 
 
                           // 3. THE DIGITAL PASSPORT CARD
-                          _buildPassportCard(state),
+                          _buildPassportCard(context, state),
 
                           const SizedBox(height: 10),
 
@@ -109,33 +110,35 @@ class PetProfileSuccessScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSuccessHeader() {
+  Widget _buildSuccessHeader(BuildContext context) {
     return Positioned(
       top: 0,
       left: 0,
       right: 0,
       height: 300,
       child: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFFDCFCE7), Color(0xFFF8FAFC)],
+            colors: context.isDarkMode
+                ? [const Color(0xFF064E3B).withOpacity(0.3), context.appBackground]
+                : [const Color(0xFFDCFCE7), const Color(0xFFF8FAFC)],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildAnimatedSuccessIcon() {
+  Widget _buildAnimatedSuccessIcon(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurface,
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: Colors.green.withOpacity(0.2),
+            color: Colors.green.withOpacity(0.15),
             blurRadius: 20,
             spreadRadius: 5,
           ),
@@ -145,14 +148,14 @@ class PetProfileSuccessScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPassportCard(ProfileState state) {
+  Widget _buildPassportCard(BuildContext context, ProfileState state) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: context.appShadow,
             blurRadius: 24,
             offset: const Offset(0, 12),
           ),
@@ -189,7 +192,7 @@ class PetProfileSuccessScreen extends StatelessWidget {
                     fontSize: 22,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 1.2,
-                    color: const Color(0xFF0F172A),
+                    color: context.appText,
                   ),
                 ),
                 Text(
@@ -197,7 +200,7 @@ class PetProfileSuccessScreen extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blueGrey,
+                    color: context.appMutedText,
                     letterSpacing: 1.5,
                   ),
                 ),
@@ -210,9 +213,9 @@ class PetProfileSuccessScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Row(
               children: [
-                _buildStatItem(Icons.history, "AGE", "${state.petAgeInYears} Yrs"),
+                _buildStatItem(context, Icons.history, "AGE", "${state.petAgeInYears} Yrs"),
                 const SizedBox(width: 12),
-                _buildStatItem(Icons.male, "GENDER", state.petSex),
+                _buildStatItem(context, Icons.male, "GENDER", state.petSex),
               ],
             ),
           ),
@@ -221,15 +224,15 @@ class PetProfileSuccessScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Row(
               children: [
-                _buildStatItem(Icons.monitor_weight_outlined, "WEIGHT", "${state.weight} KG"),
+                _buildStatItem(context, Icons.monitor_weight_outlined, "WEIGHT", "${state.weight} KG"),
                 const SizedBox(width: 12),
-                _buildStatItem(Icons.palette, "COLOR", state.color),
+                _buildStatItem(context, Icons.palette, "COLOR", state.color),
               ],
             ),
           ),
 
           const SizedBox(height: 10),
-          const Divider(height: 1, color: Color(0xFFF1F5F9)),
+          Divider(height: 1, color: context.appBorder),
 
           // QR Code Section
           Padding(
@@ -237,9 +240,9 @@ class PetProfileSuccessScreen extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
+                color: context.appSurfaceVariant,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: context.appBorder),
               ),
               child: Row(
                 children: [
@@ -252,7 +255,7 @@ class PetProfileSuccessScreen extends StatelessWidget {
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 10,
                             fontWeight: FontWeight.w800,
-                            color: Colors.blueGrey,
+                            color: context.appMutedText,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -261,7 +264,7 @@ class PetProfileSuccessScreen extends StatelessWidget {
                           style: GoogleFonts.firaCode(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF1E293B),
+                            color: context.appText,
                           ),
                         ),
                       ],
@@ -271,9 +274,9 @@ class PetProfileSuccessScreen extends StatelessWidget {
                     height: 50,
                     width: 50,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.appSurface,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.blue.shade100),
+                      border: Border.all(color: context.appBorder),
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
@@ -294,12 +297,12 @@ class PetProfileSuccessScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatItem(IconData icon, String label, String value) {
+  Widget _buildStatItem(BuildContext context, IconData icon, String label, String value) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFFF1F7FF),
+          color: context.isDarkMode ? context.appSurfaceVariant : const Color(0xFFF1F7FF),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
@@ -312,7 +315,7 @@ class PetProfileSuccessScreen extends StatelessWidget {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 9,
                 fontWeight: FontWeight.w800,
-                color: Colors.blueGrey,
+                color: context.appMutedText,
               ),
             ),
             Text(
@@ -320,7 +323,7 @@ class PetProfileSuccessScreen extends StatelessWidget {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF1E293B),
+                color: context.appText,
               ),
             ),
           ],
@@ -348,7 +351,7 @@ class PetProfileSuccessScreen extends StatelessWidget {
         AppButton(
           text: "Add Another Pet",
           icon: Icons.add,
-          color: Colors.white,
+          color: context.isDarkMode ? Colors.transparent : Colors.white,
           textColor: AppColors.primary,
           side: BorderSide(color: AppColors.primary, width: 1.5),
           onPressed: onAddAnother,

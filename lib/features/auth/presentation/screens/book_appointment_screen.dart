@@ -312,9 +312,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                   )
                                 : _buildSlotsContent(state),
                             _buildSymptomsSection(state),
-                            const SizedBox(height: 22),
+                            const SizedBox(height: 14),
                             _buildAdditionalNotesSection(),
-                            const SizedBox(height: 22),
+                            const SizedBox(height: 14),
                             _buildAttachmentsSection(),
                           ],
                         ),

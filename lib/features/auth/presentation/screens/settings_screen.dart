@@ -282,7 +282,7 @@ class SettingsScreen extends StatelessWidget {
                     _buildSettingsTile(
                       context,
                       trailing: Switch(
-                        value: themeNotifier.mode == ThemeMode.dark,
+                        value: context.isDarkMode,
                         activeThumbColor: AppColors.primary,
                         onChanged: (value) {
                           themeNotifier.setMode(
@@ -290,24 +290,28 @@ class SettingsScreen extends StatelessWidget {
                           );
                         },
                       ),
-                      icon: themeNotifier.mode == ThemeMode.dark
+                      icon: context.isDarkMode
                           ? Icons.dark_mode
                           : Icons.light_mode,
                       color: Colors.indigo.shade50,
                       iconColor: Colors.indigo,
                       title: "Dark Mode",
                       subtitle: "Switch app appearance",
-                      onTap: themeNotifier.toggle,
+                      onTap: () {
+                        themeNotifier.setMode(
+                          context.isDarkMode ? ThemeMode.light : ThemeMode.dark,
+                        );
+                      },
                     ),
-                    _buildSettingsTile(
-                      context,
-                      icon: Icons.notifications_none,
-                      color: Colors.indigo.shade50,
-                      iconColor: Colors.indigo,
-                      title: "Notifications",
-                      subtitle: "Manage notification preferences",
-                      onTap: () {},
-                    ),
+                    // _buildSettingsTile(
+                    //   context,
+                    //   icon: Icons.notifications_none,
+                    //   color: Colors.indigo.shade50,
+                    //   iconColor: Colors.indigo,
+                    //   title: "Notifications",
+                    //   subtitle: "Manage notification preferences",
+                    //   onTap: () {},
+                    // ),
                     // Added these to trigger the dialogs shown in your design
                     _buildSettingsTile(
                       context,

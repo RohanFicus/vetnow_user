@@ -39,7 +39,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
     return BlocBuilder<DashboardBloc, DashboardState>(
       builder: (context, state) {
         final now = DateTime.now();
-        
+
         // Filter appointments into upcoming and past based on date
         final upcomingAppointments = state.appointments.where((a) {
           if (a.appointmentDate == null) return false;
@@ -62,7 +62,9 @@ class _BookingsScreenState extends State<BookingsScreen> {
           }
         }).toList();
 
-        final currentList = _selectedTab == 0 ? upcomingAppointments : pastAppointments;
+        final currentList = _selectedTab == 0
+            ? upcomingAppointments
+            : pastAppointments;
 
         return Scaffold(
           backgroundColor: context.appBackground,
@@ -91,7 +93,9 @@ class _BookingsScreenState extends State<BookingsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _selectedTab == 1 ? "Booking History" : "Appointments",
+                            _selectedTab == 1
+                                ? "Booking History"
+                                : "Appointments",
                             style: TextStyle(
                               color: context.appText,
                               fontSize: 24,
@@ -109,11 +113,11 @@ class _BookingsScreenState extends State<BookingsScreen> {
                       ),
                       Row(
                         children: [
-                          CircleAvatar(
-                            backgroundColor: context.appSurface,
-                            child: Icon(Icons.tune, color: context.appMutedText),
-                          ),
-                          const SizedBox(width: 8),
+                          // CircleAvatar(
+                          //   backgroundColor: context.appSurface,
+                          //   child: Icon(Icons.tune, color: context.appMutedText),
+                          // ),
+                          // const SizedBox(width: 8),
                           GestureDetector(
                             onTap: () {
                               final bloc = context.read<DashboardBloc>();
@@ -151,29 +155,32 @@ class _BookingsScreenState extends State<BookingsScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 Expanded(
-                  child: currentList.isEmpty 
-                    ? _buildEmptyState()
-                    : ListView.separated(
-                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
-                        itemCount: currentList.length,
-                        separatorBuilder: (c, i) => const SizedBox(height: 16),
-                        itemBuilder: (context, index) {
-                          final appointment = currentList[index];
-                          return AppointmentCard(
-                            appointment: appointment,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => BookingDetailsScreen(appointment: appointment),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
+                  child: currentList.isEmpty
+                      ? _buildEmptyState()
+                      : ListView.separated(
+                          padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
+                          itemCount: currentList.length,
+                          separatorBuilder: (c, i) =>
+                              const SizedBox(height: 16),
+                          itemBuilder: (context, index) {
+                            final appointment = currentList[index];
+                            return AppointmentCard(
+                              appointment: appointment,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => BookingDetailsScreen(
+                                      appointment: appointment,
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
                 ),
               ],
             ),
@@ -227,13 +234,17 @@ class _BookingsScreenState extends State<BookingsScreen> {
                 color: Colors.blue.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.calendar_month, size: 64, color: Colors.blue),
+              child: const Icon(
+                Icons.calendar_month,
+                size: 64,
+                color: Colors.blue,
+              ),
             ),
             const SizedBox(height: 24),
             Text(
               "No appointments found",
               style: TextStyle(
-                fontSize: 22,
+                fontSize: 18,
                 fontWeight: FontWeight.w800,
                 color: context.appText,
               ),
@@ -246,7 +257,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: context.appMutedText,
-                fontSize: 14,
+                fontSize: 13,
                 height: 1.5,
               ),
             ),
