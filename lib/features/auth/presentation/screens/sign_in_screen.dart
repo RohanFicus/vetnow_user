@@ -58,11 +58,12 @@ class SignInScreen extends StatelessWidget {
                         child: Image.asset(
                           'assets/png/signup_bg.png',
                           fit: BoxFit.cover,
-                          color: Theme.of(context).brightness == Brightness.dark 
-                              ? Theme.of(context).scaffoldBackgroundColor 
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Theme.of(context).scaffoldBackgroundColor
                               : null,
-                          colorBlendMode: Theme.of(context).brightness == Brightness.dark 
-                              ? BlendMode.multiply 
+                          colorBlendMode:
+                              Theme.of(context).brightness == Brightness.dark
+                              ? BlendMode.multiply
                               : null,
                         ),
                       ),
@@ -100,7 +101,9 @@ class SignInScreen extends StatelessWidget {
                                               "Welcome to VetNow",
                                               style: TextStyle(
                                                 fontSize: 24,
-                                                color: Theme.of(context).colorScheme.onSurface,
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurface,
                                               ),
                                             ),
                                             SizedBox(
@@ -114,7 +117,10 @@ class SignInScreen extends StatelessWidget {
                                                 textAlign: TextAlign.center,
                                                 style: TextStyle(
                                                   fontSize: AppSizes.s14,
-                                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface
+                                                      .withOpacity(0.7),
                                                 ),
                                               ),
                                             ),
@@ -146,7 +152,8 @@ class SignInScreen extends StatelessWidget {
                                                         phoneNumberController,
                                                     value: state.phone,
                                                     countryCode:
-                                                        state.selectedCountry,
+                                                        state.selectedCountryCode,
+                                                    flag: state.selectedCountryFlag,
                                                     errorText: state.phoneError,
                                                     onChanged: (value) {
                                                       context
@@ -158,14 +165,15 @@ class SignInScreen extends StatelessWidget {
                                                     onCountryTap: () {
                                                       showCountryPickerSheet(
                                                         context: context,
-                                                        onSelected: (country) {
+                                                        onSelected: (code, flag) {
                                                           context
                                                               .read<
                                                                 SignInBloc
                                                               >()
                                                               .add(
                                                                 CountrySelected(
-                                                                  country,
+                                                                  code,
+                                                                  flag,
                                                                 ),
                                                               );
                                                         },

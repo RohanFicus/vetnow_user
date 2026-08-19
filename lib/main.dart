@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:vetnow_user/core/storage/secure_storage_service.dart';
 
 import 'core/di/service_locator.dart';
+import 'core/navigation/navigation_service.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_notifier.dart';
 import 'features/splash/presentation/app_launcher.dart';
@@ -42,6 +43,7 @@ class MyApp extends StatelessWidget {
     final themeNotifier = context.watch<ThemeNotifier>();
 
     return MaterialApp(
+      navigatorKey: NavigationService.navigatorKey,
       title: 'VetNow',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme(),

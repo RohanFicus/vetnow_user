@@ -46,6 +46,19 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchSlots();
       context.read<DashboardBloc>().add(FetchAllSpeciesEvent());
+
+      final state = context.read<DashboardBloc>().state;
+      if (state.pets.isNotEmpty) {
+        final defaultPet = state.pets.first;
+        setState(() {
+          _selectedPet = defaultPet;
+        });
+        if (defaultPet.profile?.speciesId != null) {
+          context.read<DashboardBloc>().add(
+            FetchSymptomsEvent(defaultPet.profile!.speciesId!),
+          );
+        }
+      }
     });
   }
 

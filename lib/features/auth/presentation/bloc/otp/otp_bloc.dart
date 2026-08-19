@@ -51,6 +51,10 @@ class OtpBloc extends Bloc<OtpEvent, OtpState> {
       print("Id===>${result.meta?.accessToken}");
       var token = result.meta?.accessToken?.toString();
       await storageService.saveToken(token.toString());
+      var refreshToken = result.meta?.refreshToken?.toString();
+      if (refreshToken != null) {
+        await storageService.saveRefreshToken(refreshToken);
+      }
       DashBoardResponseModal? dashBoardResponseModal = result.data;
       storageService.saveDashboardDataJson(dashBoardResponseModal!.toJson());
 

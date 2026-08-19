@@ -4,6 +4,7 @@ typedef Validator = String? Function(String? value);
 
 class AppPhoneField extends StatefulWidget {
   final String countryCode;
+  final String flag;
   final String hint;
   final String? errorText;
   final bool enabled;
@@ -17,6 +18,7 @@ class AppPhoneField extends StatefulWidget {
   const AppPhoneField({
     super.key,
     this.countryCode = '+91',
+    this.flag = '🇮🇳',
     this.hint = 'Enter your phone number',
     this.errorText,
     this.enabled = true,
@@ -89,7 +91,7 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
                     onTap: widget.onCountryTap,
                     child: Row(
                       children: [
-                        const Text('🇮🇳', style: TextStyle(fontSize: 14)),
+                        Text(widget.flag, style: const TextStyle(fontSize: 14)),
                         const SizedBox(width: 4),
                         Text(
                           widget.countryCode,

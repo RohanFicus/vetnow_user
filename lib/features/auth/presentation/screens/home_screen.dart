@@ -195,7 +195,7 @@ Widget _buildTopProfileRow(BuildContext context, DashboardState state) {
         ),
         Row(
           children: [
-            _buildNotificationIcon(context, state.isLoading),
+            // _buildNotificationIcon(context, state.isLoading),
             const SizedBox(width: 10),
             _buildProfileIcon(context, state),
           ],

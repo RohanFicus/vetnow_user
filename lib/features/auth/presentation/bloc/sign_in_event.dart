@@ -26,12 +26,13 @@ class TermsToggled extends SignInEvent {
 }
 
 class CountrySelected extends SignInEvent {
-  final String country;
+  final String code;
+  final String flag;
 
-  const CountrySelected(this.country);
+  const CountrySelected(this.code, this.flag);
 
   @override
-  List<Object?> get props => [country];
+  List<Object?> get props => [code, flag];
 }
 
 class SubmitPressed extends SignInEvent {}

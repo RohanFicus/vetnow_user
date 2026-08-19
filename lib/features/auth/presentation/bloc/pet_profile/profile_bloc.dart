@@ -1,8 +1,8 @@
 import 'dart:convert';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vetnow_user/core/network/api_exception.dart';
 import 'package:vetnow_user/core/storage/secure_storage_service.dart';
-import 'package:vetnow_user/features/auth/data/models/breeds_response_model.dart';
 import 'package:vetnow_user/features/auth/data/models/complete_profile_response.dart';
 import 'package:vetnow_user/features/auth/data/models/edit_profile_request_model.dart';
 import 'package:vetnow_user/features/auth/data/models/vaccine_response_model.dart';
@@ -216,8 +216,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
             petId: result.petResponse?.id ?? petId,
           ),
         );
-      }
-      else{
+      } else {
         await profileUseCase.createPetStep2(
           petProfileStep2Entity: PetProfileStep2Entity(
             weightKg: state.weight,
@@ -325,7 +324,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           vaccineId: event.vaccine.id,
           vaccineCode: event.vaccine.code,
           vaccinationDate: event.vaccine.vaccinationDate,
-          status: "NOT SURE",
+          status: "No",
         ),
       );
     }

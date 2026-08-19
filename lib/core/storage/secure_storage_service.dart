@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureStorageService {
   static const _tokenKey = 'auth_token';
+  static const _refreshTokenKey = 'refresh_token';
   static const _requestId = 'request_id';
   static const _customer_profile = 'customer_profile';
   static const _dashboard_data = 'dashboard_data';
@@ -21,6 +22,18 @@ class SecureStorageService {
 
   Future<void> clearToken() async {
     await _storage.delete(key: _tokenKey);
+  }
+
+  Future<void> saveRefreshToken(String token) async {
+    await _storage.write(key: _refreshTokenKey, value: token);
+  }
+
+  Future<String?> getRefreshToken() async {
+    return await _storage.read(key: _refreshTokenKey);
+  }
+
+  Future<void> clearRefreshToken() async {
+    await _storage.delete(key: _refreshTokenKey);
   }
 
   Future<void> saveRequestId(String token) async {

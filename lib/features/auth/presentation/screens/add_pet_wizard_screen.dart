@@ -1281,8 +1281,6 @@ class Step3MedicalDetails extends StatelessWidget {
         _spayedButton("YES", context, state, index, vaccine),
         const SizedBox(width: 15),
         _spayedButton("NO", context, state, index, vaccine),
-        const SizedBox(width: 15),
-        _spayedButton("NOT SURE", context, state, index, vaccine),
       ],
     );
   }

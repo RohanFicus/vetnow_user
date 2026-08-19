@@ -47,7 +47,10 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   }
 
   void _onCountrySelected(CountrySelected event, Emitter<SignInState> emit) {
-    emit(state.copyWith(selectedCountry: event.country));
+    emit(state.copyWith(
+      selectedCountryCode: event.code,
+      selectedCountryFlag: event.flag,
+    ));
   }
 
   Future<void> _onSubmit(SubmitPressed event, Emitter<SignInState> emit) async {
@@ -57,7 +60,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     try {
       final result = await sendOtpUseCase(
         phone: state.phone,
-        countryCode: state.selectedCountry,
+        countryCode: state.selectedCountryCode,
       );
       storageService.saveRequestId(result.requestId.toString());
       print("Id${result.requestId}");

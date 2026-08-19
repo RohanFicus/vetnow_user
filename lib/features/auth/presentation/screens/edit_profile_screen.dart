@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vetnow_user/core/theme/app_theme_colors.dart';
 import 'package:vetnow_user/core/di/service_locator.dart';
+import 'package:vetnow_user/core/theme/app_theme_colors.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/ownerProfile/owner_profile_bloc.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/ownerProfile/owner_profile_event.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/ownerProfile/owner_profile_state.dart';
@@ -182,8 +182,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                       // 4. CONTINUE BUTTON
                       SizedBox(
-                        width: double.infinity,
-                        height: 56,
+                        width: MediaQuery.of(context).size.width / 2,
+                        height: 46,
                         child: AppButton(
                           text: state.isLoading ? "" : "Save Changes",
                           textColor: state.isProfileEdited
@@ -223,7 +223,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-   Widget _buildAvatarSection(OwnerProfileState state) {
+  Widget _buildAvatarSection(OwnerProfileState state) {
     return Center(
       child: Stack(
         children: [
@@ -285,7 +285,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 }
 
- // Updated AppBar Design
+// Updated AppBar Design
 PreferredSizeWidget _buildSimpleAppBar(BuildContext context, String title) {
   return AppBar(
     backgroundColor: context.appBackground,
@@ -299,11 +299,7 @@ PreferredSizeWidget _buildSimpleAppBar(BuildContext context, String title) {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: context.appBorder),
         ),
-        child: Icon(
-          Icons.arrow_back_ios_new,
-          size: 14,
-          color: context.appText,
-        ),
+        child: Icon(Icons.arrow_back_ios_new, size: 14, color: context.appText),
       ),
       onPressed: () => Navigator.pop(context),
     ),

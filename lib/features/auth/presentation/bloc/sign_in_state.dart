@@ -6,7 +6,8 @@ class SignInState extends Equatable {
   final String phone;
   final bool termsAccepted;
   final bool isButtonEnabled;
-  final String selectedCountry;
+  final String selectedCountryCode;
+  final String selectedCountryFlag;
   final bool isLoading;
   final String? error;
   final String? phoneError;
@@ -16,7 +17,8 @@ class SignInState extends Equatable {
     this.phone = '',
     this.termsAccepted = false,
     this.isButtonEnabled = false,
-    this.selectedCountry = 'India',
+    this.selectedCountryCode = '+91',
+    this.selectedCountryFlag = '🇮🇳',
     required this.isLoading,
     this.error,
     this.phoneError,
@@ -25,7 +27,8 @@ class SignInState extends Equatable {
 
   factory SignInState.initial() => SignInState(
     phone: "",
-    selectedCountry: 'India',
+    selectedCountryCode: '+91',
+    selectedCountryFlag: '🇮🇳',
     termsAccepted: false,
     isButtonEnabled: false,
     isLoading: false,
@@ -36,7 +39,8 @@ class SignInState extends Equatable {
     String? phone,
     bool? termsAccepted,
     bool? isButtonEnabled,
-    String? selectedCountry,
+    String? selectedCountryCode,
+    String? selectedCountryFlag,
     bool? isLoading,
     String? error,
     String? phoneError,
@@ -46,7 +50,8 @@ class SignInState extends Equatable {
       phone: phone ?? this.phone,
       termsAccepted: termsAccepted ?? this.termsAccepted,
       isButtonEnabled: isButtonEnabled ?? this.isButtonEnabled,
-      selectedCountry: selectedCountry ?? this.selectedCountry,
+      selectedCountryCode: selectedCountryCode ?? this.selectedCountryCode,
+      selectedCountryFlag: selectedCountryFlag ?? this.selectedCountryFlag,
       isLoading: isLoading ?? this.isLoading,
       phoneError: phoneError ?? this.phoneError,
       error: error,
@@ -59,7 +64,8 @@ class SignInState extends Equatable {
     phone,
     termsAccepted,
     isButtonEnabled,
-    selectedCountry,
+    selectedCountryCode,
+    selectedCountryFlag,
     isLoading,
     error,
     phoneError,

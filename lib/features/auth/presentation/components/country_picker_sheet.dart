@@ -1,37 +1,38 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_color.dart';
+import 'package:vetnow_user/core/theme/app_theme_colors.dart';
+
 import '../../../../core/theme/sizes.dart';
 import '../../domain/entities/country.dart';
 
-typedef OnCountrySelected = void Function(String country);
+typedef OnCountrySelected = void Function(String code, String flag);
 
 void showCountryPickerSheet({
   required BuildContext context,
   required OnCountrySelected onSelected,
 }) {
   final List<Country> countries = [
-    Country(code: '+91', name: 'India'),
-    Country(code: '+1', name: 'United States'),
-    Country(code: '+11', name: 'Canada'),
-    Country(code: '+2', name: 'Australia'),
-    Country(code: '+3', name: 'United Kingdom Kingdomlia'),
-    Country(code: '+4', name: 'Germany'),
-    Country(code: '+5', name: 'France'),
-    Country(code: '+6', name: 'Brazil'),
+    Country(code: '+91', name: 'India', flag: '🇮🇳'),
+    Country(code: '+1', name: 'United States', flag: '🇺🇸'),
+    Country(code: '+1', name: 'Canada', flag: '🇨🇦'),
+    Country(code: '+61', name: 'Australia', flag: '🇦🇺'),
+    Country(code: '+44', name: 'United Kingdom', flag: '🇬🇧'),
+    Country(code: '+49', name: 'Germany', flag: '🇩🇪'),
+    Country(code: '+33', name: 'France', flag: '🇫🇷'),
+    Country(code: '+55', name: 'Brazil', flag: '🇧🇷'),
   ];
 
   showModalBottomSheet(
     context: context,
-    backgroundColor: Colors.white,
+    backgroundColor: context.appSurface,
     useSafeArea: true,
-    constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.6),
+    constraints: BoxConstraints(
+      maxHeight: MediaQuery.of(context).size.height * 0.6,
+    ),
     shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(
-        top: Radius.circular(16),
-      ),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
     ),
     isScrollControlled: true,
-    builder: (_) {
+    builder: (context) {
       return SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSizes.s16),
@@ -42,15 +43,16 @@ void showCountryPickerSheet({
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Select Country',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
+                      color: context.appText,
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: Icon(Icons.close, color: context.appText),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -63,21 +65,21 @@ void showCountryPickerSheet({
                 child: ListView.separated(
                   itemCount: countries.length,
                   separatorBuilder: (_, __) =>
-                  const Divider(height: 1),
+                      Divider(height: 1, color: context.appBorder),
                   itemBuilder: (context, index) {
                     final country = countries[index];
                     return ListTile(
                       title: Text(
                         country.name,
-                        style: const TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 16, color: context.appText),
                       ),
-                      trailing: const Icon(
+                      trailing: Icon(
                         Icons.arrow_forward_ios,
                         size: 14,
-                        color: AppColors.textGray,
+                        color: context.appMutedText,
                       ),
                       onTap: () {
-                        onSelected(country.code);
+                        onSelected(country.code, country.flag);
                         Navigator.pop(context);
                       },
                     );

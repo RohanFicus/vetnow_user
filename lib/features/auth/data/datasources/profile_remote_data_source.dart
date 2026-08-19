@@ -164,7 +164,10 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       );
     }
 
-    final response = await client.dio.post("/api/v1/pets", data: petProfileStep1Entity);
+    final response = await client.dio.post(
+      "/api/v1/pets",
+      data: petProfileStep1Entity,
+    );
 
     return ApiResponseHandler.handleResponse(
       response,
@@ -255,9 +258,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
     print("createPetProfile");
 
-    final response = await client.dio.post(
+    final response = await client.dio.get(
       "/api/v1/pets/$petId/skip-complete-profile",
-      data: {},
     );
     return ApiResponseHandler.handleResponse(
       response,

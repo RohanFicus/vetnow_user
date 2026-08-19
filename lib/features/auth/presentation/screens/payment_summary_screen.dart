@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:vetnow_user/core/theme/app_theme_colors.dart';
 import 'package:vetnow_user/features/auth/domain/entities/appointment_request.dart';
-import 'package:vetnow_user/features/auth/presentation/bloc/dashboardProfile/dashboard_bloc.dart';
-import 'package:vetnow_user/features/auth/presentation/bloc/dashboardProfile/dashboard_state.dart';
-
-import '../components/app_bar.dart';
-import '../components/AppButton.dart';
-import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:vetnow_user/features/auth/domain/entities/payment_verify_request.dart';
+import 'package:vetnow_user/features/auth/presentation/bloc/dashboardProfile/dashboard_bloc.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/dashboardProfile/dashboard_event.dart';
+import 'package:vetnow_user/features/auth/presentation/bloc/dashboardProfile/dashboard_state.dart';
 import 'package:vetnow_user/features/auth/presentation/screens/confirmation_screen.dart';
+
 import '../../../../core/theme/app_color.dart';
+import '../components/AppButton.dart';
+import '../components/app_bar.dart';
 
 class PaymentSummaryScreen extends StatefulWidget {
   final String selectedTime;
@@ -49,19 +49,22 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
     _isPaymentStarted = false;
-    final appointmentId =
-        context.read<DashboardBloc>().state.lastBookedAppointment?.appointmentId;
+    final appointmentId = context
+        .read<DashboardBloc>()
+        .state
+        .lastBookedAppointment
+        ?.appointmentId;
     if (appointmentId != null) {
       context.read<DashboardBloc>().add(
-            VerifyPaymentEvent(
-              PaymentVerifyRequest(
-                appointmentId: appointmentId,
-                razorpayOrderId: response.orderId ?? '',
-                razorpayPaymentId: response.paymentId ?? '',
-                razorpaySignature: response.signature ?? '',
-              ),
-            ),
-          );
+        VerifyPaymentEvent(
+          PaymentVerifyRequest(
+            appointmentId: appointmentId,
+            razorpayOrderId: response.orderId ?? '',
+            razorpayPaymentId: response.paymentId ?? '',
+            razorpaySignature: response.signature ?? '',
+          ),
+        ),
+      );
     }
   }
 
@@ -95,8 +98,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
         'email': context.read<DashboardBloc>().state.user?.email ?? '',
       },
       'external': {
-        'wallets': ['paytm']
-      }
+        'wallets': ['paytm'],
+      },
     };
 
     if (orderId != null && !orderId.contains("demo")) {
@@ -115,10 +118,10 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
   Widget build(BuildContext context) {
     return BlocListener<DashboardBloc, DashboardState>(
       listener: (context, state) {
-        if (state.bookingSuccess && 
-            state.lastBookedAppointment != null && 
-            !state.isLoading && 
-            !_isPaymentStarted && 
+        if (state.bookingSuccess &&
+            state.lastBookedAppointment != null &&
+            !state.isLoading &&
+            !_isPaymentStarted &&
             !_hasAutoTriggered &&
             !state.paymentSuccess) {
           _hasAutoTriggered = true;
@@ -148,16 +151,16 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
         }
 
         if (state.error != null && !state.bookingSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.error!)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.error!)));
         }
       },
       child: BlocBuilder<DashboardBloc, DashboardState>(
         builder: (context, state) {
           final int feePaise = state.lastBookedAppointment?.amount ?? 110000;
           final double fee = feePaise / 100;
-          final double total = fee + 20;
+          final double total = fee;
 
           return Scaffold(
             backgroundColor: context.appBackground,
@@ -228,30 +231,14 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                   ],
                                 ),
                               ),
-                              const Icon(Icons.cancel,
-                                  color: Colors.red, size: 20),
+                              const Icon(
+                                Icons.cancel,
+                                color: Colors.red,
+                                size: 20,
+                              ),
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  _card(
-                    context,
-                    Row(
-                      children: [
-                        const Icon(Icons.percent, color: AppColors.primary),
-                        const SizedBox(width: 10),
-                        Text(
-                          "Apply Coupon",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: context.appText,
-                          ),
-                        ),
-                        const Spacer(),
-                        Icon(Icons.chevron_right, color: context.appMutedText),
                       ],
                     ),
                   ),
@@ -270,11 +257,19 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                         ),
                         const SizedBox(height: 15),
                         _priceRow(context, "Slots Booked", "1x Slot"),
-                        _priceRow(context, "Slots Price", "₹${fee.toStringAsFixed(2)}"),
-                        _priceRow(context, "Convenience Fee", "+₹20.00"),
+                        _priceRow(
+                          context,
+                          "Slots Price",
+                          "₹${fee.toStringAsFixed(2)}",
+                        ),
+                        _priceRow(context, "Convenience Fee", "0.0"),
                         Divider(height: 30, color: context.appBorder),
-                        _priceRow(context, "Amount to Pay", "₹${total.toStringAsFixed(2)}",
-                            isBold: true),
+                        _priceRow(
+                          context,
+                          "Amount to Pay",
+                          "₹${total.toStringAsFixed(2)}",
+                          isBold: true,
+                        ),
                       ],
                     ),
                   ),
@@ -296,7 +291,9 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                           Text(
                             "including all taxes",
                             style: TextStyle(
-                                color: context.appMutedText, fontSize: 10),
+                              color: context.appMutedText,
+                              fontSize: 10,
+                            ),
                           ),
                         ],
                       ),
@@ -307,12 +304,17 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                           onLongPress: () {
                             // DEMO BYPASS: Long press to force success if Razorpay hangs
                             if (state.lastBookedAppointment != null) {
-                               context.read<DashboardBloc>().add(
+                              context.read<DashboardBloc>().add(
                                 VerifyPaymentEvent(
                                   PaymentVerifyRequest(
-                                    appointmentId: state.lastBookedAppointment!.appointmentId,
-                                    razorpayOrderId: state.lastBookedAppointment!.paymentOrderId,
-                                    razorpayPaymentId: 'pay_bypass_${DateTime.now().millisecondsSinceEpoch}',
+                                    appointmentId: state
+                                        .lastBookedAppointment!
+                                        .appointmentId,
+                                    razorpayOrderId: state
+                                        .lastBookedAppointment!
+                                        .paymentOrderId,
+                                    razorpayPaymentId:
+                                        'pay_bypass_${DateTime.now().millisecondsSinceEpoch}',
                                     razorpaySignature: 'sig_bypass',
                                   ),
                                 ),
@@ -329,13 +331,17 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                     if (state.lastBookedAppointment != null) {
                                       _startPayment(
                                         state.lastBookedAppointment!.amount,
-                                        state.lastBookedAppointment!.paymentOrderId,
+                                        state
+                                            .lastBookedAppointment!
+                                            .paymentOrderId,
                                       );
-                                    } else if (widget.appointmentRequest != null) {
+                                    } else if (widget.appointmentRequest !=
+                                        null) {
                                       context.read<DashboardBloc>().add(
-                                            BookAppointmentEvent(
-                                                widget.appointmentRequest!),
-                                          );
+                                        BookAppointmentEvent(
+                                          widget.appointmentRequest!,
+                                        ),
+                                      );
                                     }
                                   },
                           ),
@@ -353,40 +359,41 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
   }
 
   Widget _card(BuildContext context, Widget child) => Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: context.appSurface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: context.appBorder),
-          boxShadow: [
-            BoxShadow(color: context.appShadow, blurRadius: 5),
-          ],
-        ),
-        child: child,
-      );
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: context.appSurface,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: context.appBorder),
+      boxShadow: [BoxShadow(color: context.appShadow, blurRadius: 5)],
+    ),
+    child: child,
+  );
 
-  Widget _priceRow(BuildContext context, String label, String val,
-          {bool isBold = false}) =>
-      Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                color: isBold ? context.appText : context.appMutedText,
-                fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-            Text(
-              val,
-              style: TextStyle(
-                fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-                color: context.appText,
-              ),
-            ),
-          ],
+  Widget _priceRow(
+    BuildContext context,
+    String label,
+    String val, {
+    bool isBold = false,
+  }) => Padding(
+    padding: const EdgeInsets.only(bottom: 8),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: isBold ? context.appText : context.appMutedText,
+            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+          ),
         ),
-      );
+        Text(
+          val,
+          style: TextStyle(
+            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+            color: context.appText,
+          ),
+        ),
+      ],
+    ),
+  );
 }
