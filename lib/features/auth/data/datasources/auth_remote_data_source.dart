@@ -47,8 +47,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       data: {"mobile": phone, "countryCode": countryCode},
     );
 
-    return ApiResponse.fromJson(
-      response.data,
+    return ApiResponseHandler.handleResponse(
+      response,
       (json) => OtpResponseModel.fromJson(json),
       null,
     );

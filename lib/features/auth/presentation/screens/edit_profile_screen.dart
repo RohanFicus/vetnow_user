@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vetnow_user/core/di/service_locator.dart';
+import 'package:vetnow_user/core/localization/app_strings.dart';
 import 'package:vetnow_user/core/theme/app_theme_colors.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/ownerProfile/owner_profile_bloc.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/ownerProfile/owner_profile_event.dart';
@@ -43,7 +44,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           builder: (context, state) {
             return Scaffold(
               backgroundColor: context.appBackground,
-              appBar: _buildSimpleAppBar(context, "Edit Profile"),
+              appBar: _buildSimpleAppBar(context, context.strings.editProfile),
               body: SafeArea(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -68,11 +69,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildSectionHeader("Personal Information"),
+                            _buildSectionHeader(context.strings.personalInformation),
                             const SizedBox(height: 16),
 
                             AppTextField(
-                              label: 'First Name',
+                              label: context.strings.firstName,
                               hint: "John",
                               prefixIcon: const Icon(
                                 Icons.person_outline,
@@ -86,7 +87,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             const SizedBox(height: 18),
 
                             AppTextField(
-                              label: 'Last Name',
+                              label: context.strings.lastName,
                               hint: "Doe",
                               prefixIcon: const Icon(
                                 Icons.person_outline,
@@ -100,7 +101,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             const SizedBox(height: 18),
 
                             AppTextField(
-                              label: 'Email Address',
+                              label: context.strings.email,
                               hint: "john@example.com",
                               prefixIcon: const Icon(
                                 Icons.mail_outline,
@@ -134,13 +135,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildSectionHeader("Location Details"),
+                            _buildSectionHeader(context.strings.locationDetails),
                             const SizedBox(height: 16),
 
                             AppTextField(
                               key: ValueKey("${state.city}-${state.state}"),
-                              label: 'Location / Address',
-                              hint: "Search your city...",
+                              label: context.strings.locationAddress,
+                              hint: context.strings.searchCityHint,
                               readOnly: true,
                               value: state.address,
                               prefixIcon: const Icon(
@@ -185,7 +186,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         width: MediaQuery.of(context).size.width / 2,
                         height: 46,
                         child: AppButton(
-                          text: state.isLoading ? "" : "Save Changes",
+                          text: state.isLoading ? "" : context.strings.saveChanges,
                           textColor: state.isProfileEdited
                               ? Colors.white
                               : Colors.grey.shade600,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vetnow_user/core/di/service_locator.dart';
+import 'package:vetnow_user/core/localization/app_strings.dart';
 import 'package:vetnow_user/core/network/api_client.dart';
 import 'package:vetnow_user/core/storage/secure_storage_service.dart';
 import 'package:vetnow_user/features/auth/data/datasources/dashboard_remote_data_source.dart';
@@ -26,7 +27,7 @@ class MyPetsListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return BlocProvider(
-      create: (_) => sl<DashboardBloc>()..add(OwnerProfileCallLocally()),
+      create: (_) => sl<DashboardBloc>()..add(OnDashboardCall()),
       child: BlocListener<DashboardBloc, DashboardState>(
         listenWhen: (previous, current) =>
             previous.user != current.user ||
@@ -46,8 +47,32 @@ class MyPetsListScreen extends StatelessWidget {
         },
         child: BlocBuilder<DashboardBloc, DashboardState>(
           builder: (context, state) {
-            if (state.isLoading) {
-              return const Center(child: CircularProgressIndicator());
+            if (state.isLoading && state.pets.isEmpty) {
+              return Scaffold(
+                backgroundColor: context.appBackground,
+                appBar: AppBar(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  centerTitle: true,
+                  leading: IconButton(
+                    icon: Icon(
+                      Icons.arrow_back_ios_new,
+                      color: context.appText,
+                      size: 20,
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  title: Text(
+                    context.strings.myPetFamily,
+                    style: TextStyle(
+                      color: context.appText,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+                body: const Center(child: CircularProgressIndicator()),
+              );
             }
 
             if (state.pets.isEmpty) {
@@ -69,7 +94,7 @@ class MyPetsListScreen extends StatelessWidget {
                   onPressed: () => Navigator.pop(context),
                 ),
                 title: Text(
-                  "My Pet Family",
+                  context.strings.myPetFamily,
                   style: TextStyle(
                     color: context.appText,
                     fontWeight: FontWeight.w800,
@@ -88,7 +113,7 @@ class MyPetsListScreen extends StatelessWidget {
                         vertical: 10,
                       ),
                       child: Text(
-                        "You have ${state.pets.length} pets registered",
+                        context.strings.registeredPetsCount(state.pets.length),
                         style: TextStyle(
                           color: context.appMutedText,
                           fontWeight: FontWeight.w500,
@@ -96,13 +121,30 @@ class MyPetsListScreen extends StatelessWidget {
                       ),
                     ),
                     Expanded(
-                      child: ListView.builder(
-                        itemCount: state.pets.length,
-                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
-                        // Bottom padding for FAB
-                        itemBuilder: (context, index) {
-                          return _buildPetCard(context, state.pets[index]);
+                      child: RefreshIndicator(
+                        color: AppColors.primary,
+                        backgroundColor: context.appSurface,
+                        onRefresh: () async {
+                          context.read<DashboardBloc>().add(OnDashboardCall());
+                          try {
+                            await context
+                                .read<DashboardBloc>()
+                                .stream
+                                .firstWhere((state) => !state.isLoading)
+                                .timeout(const Duration(seconds: 4));
+                          } catch (_) {}
                         },
+                        child: ListView.builder(
+                          physics: const AlwaysScrollableScrollPhysics(
+                            parent: BouncingScrollPhysics(),
+                          ),
+                          itemCount: state.pets.length,
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+                          // Bottom padding for FAB
+                          itemBuilder: (context, index) {
+                            return _buildPetCard(context, state.pets[index]);
+                          },
+                        ),
                       ),
                     ),
                   ],
@@ -120,11 +162,18 @@ class MyPetsListScreen extends StatelessWidget {
     final speciesImg = PetUtils.getSpeciesImage(pet.profile?.speciesName);
 
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
+      onTap: () async {
+        final result = await Navigator.push(
           context,
           MaterialPageRoute(builder: (c) => PetProfileDetailScreen(pet: pet)),
         );
+        if (result == true && context.mounted) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              context.read<DashboardBloc>().add(OnDashboardCall());
+            }
+          });
+        }
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
@@ -181,7 +230,7 @@ class MyPetsListScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      profile?.name ?? "Unnamed Pet",
+                      profile?.name ?? context.strings.unnamedPet,
                       style: TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 18,
@@ -198,7 +247,7 @@ class MyPetsListScreen extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          "ID: ${profile?.petUniqueId ?? 'N/A'}",
+                          context.strings.petIdTag(profile?.petUniqueId ?? 'N/A'),
                           style: TextStyle(
                             color: context.appMutedText,
                             fontSize: 13,
@@ -218,7 +267,7 @@ class MyPetsListScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        " ${profile?.breedName ?? 'N/A'}",
+                        " ${profile?.breedName ?? context.strings.unknownBreed}",
                         // You can replace this with pet.breed
                         style: const TextStyle(
                           color: AppColors.primary,
@@ -265,49 +314,69 @@ class MyPetsListScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(32),
-                decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
+      body: RefreshIndicator(
+        color: AppColors.primary,
+        backgroundColor: context.appSurface,
+        onRefresh: () async {
+          context.read<DashboardBloc>().add(OnDashboardCall());
+          try {
+            await context
+                .read<DashboardBloc>()
+                .stream
+                .firstWhere((state) => !state.isLoading)
+                .timeout(const Duration(seconds: 4));
+          } catch (_) {}
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics(),
+          ),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.75,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(32),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.pets, size: 80, color: Colors.orange),
+                    ),
+                    const SizedBox(height: 32),
+                    Text(
+                      context.strings.noPetsFound,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w900,
+                        color: context.appText,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      context.strings.noPetsFoundDesc,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: context.appMutedText,
+                        fontSize: 15,
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    AppButton(
+                      text: context.strings.addNewPet,
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/add-pet');
+                      },
+                    ),
+                  ],
                 ),
-                child: const Icon(Icons.pets, size: 80, color: Colors.orange),
               ),
-              const SizedBox(height: 32),
-              Text(
-                "No Pets Found",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w900,
-                  color: context.appText,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                "Your pet family is empty. Add your first pet to start tracking their health and records.",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: context.appMutedText,
-                  fontSize: 15,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 40),
-              AppButton(
-                text: "Add New Pet",
-                onPressed: () {
-                  // This is a bit tricky since we are in a Stateless widget 
-                  // and may need to pass the bloc or just use a new one in the wizard
-                  Navigator.pushNamed(context, '/add-pet'); // Assuming route exists or use Navigator.push
-                },
-              ),
-            ],
+            ),
           ),
         ),
       ),

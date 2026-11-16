@@ -1,5 +1,7 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vetnow_user/core/localization/app_strings.dart';
 import 'package:vetnow_user/features/auth/presentation/components/dismiss_keyboard.dart';
 
 import '../../../../core/di/service_locator.dart';
@@ -13,6 +15,7 @@ import '../components/app_card.dart';
 import '../components/app_scaffold.dart';
 import '../components/country_picker_sheet.dart';
 import '../components/phone_number_field.dart';
+import './legal_text_screen.dart';
 import './otp_screen.dart';
 
 class SignInScreen extends StatelessWidget {
@@ -33,16 +36,22 @@ class SignInScreen extends StatelessWidget {
             previous.error != current.error,
         listener: (context, state) {
           print("OtpResult :: ${state.otpResult}");
-          if (state.otpResult != null) {
-            // ✅ Navigate on SUCCESS
+          if (state.otpResult != null &&
+              state.otpResult?.requestId != null &&
+              state.otpResult!.requestId!.isNotEmpty) {
+            // ✅ Navigate only on SUCCESS with valid requestId
             Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => OtpScreen(number: state.phone)),
             );
           }
           if (state.error != null) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.error!)));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.error!),
+                backgroundColor: Colors.red,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
           }
         },
         child: BlocBuilder<SignInBloc, SignInState>(
@@ -98,7 +107,7 @@ class SignInScreen extends StatelessWidget {
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             Text(
-                                              "Welcome to VetNow",
+                                              context.strings.welcomeToVetNow,
                                               style: TextStyle(
                                                 fontSize: 24,
                                                 color: Theme.of(
@@ -113,7 +122,7 @@ class SignInScreen extends StatelessWidget {
                                                   ).size.width *
                                                   0.7,
                                               child: Text(
-                                                "Your pet’s health companion to make your pet healthy and happy",
+                                                context.strings.signInSubtitle,
                                                 textAlign: TextAlign.center,
                                                 style: TextStyle(
                                                   fontSize: AppSizes.s14,
@@ -139,8 +148,8 @@ class SignInScreen extends StatelessWidget {
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    "Phone Number",
-                                                    style: TextStyle(
+                                                    context.strings.phoneNumberLabel,
+                                                    style: const TextStyle(
                                                       color: Colors.white,
                                                     ),
                                                   ),
@@ -150,6 +159,7 @@ class SignInScreen extends StatelessWidget {
                                                   AppPhoneField(
                                                     controller:
                                                         phoneNumberController,
+                                                    hint: context.strings.enterPhoneNumberHint,
                                                     value: state.phone,
                                                     countryCode:
                                                         state.selectedCountryCode,
@@ -205,14 +215,58 @@ class SignInScreen extends StatelessWidget {
                                                         },
                                                       ),
                                                       Expanded(
-                                                        child: Text(
-                                                          "By continuing, you agree to VetNow Terms and Condition & Privacy Policy.",
-                                                          textAlign:
-                                                              TextAlign.start,
-                                                          style: TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize:
-                                                                AppSizes.s12,
+                                                        child: RichText(
+                                                          textAlign: TextAlign.start,
+                                                          text: TextSpan(
+                                                            style: TextStyle(
+                                                              color: Colors.white,
+                                                              fontSize: AppSizes.s12,
+                                                            ),
+                                                            children: [
+                                                              TextSpan(
+                                                                text: context.strings.termsByContinuing,
+                                                              ),
+                                                              TextSpan(
+                                                                text: context.strings.termsAndConditions,
+                                                                style: const TextStyle(
+                                                                  decoration: TextDecoration.underline,
+                                                                  fontWeight: FontWeight.bold,
+                                                                ),
+                                                                recognizer: TapGestureRecognizer()
+                                                                  ..onTap = () {
+                                                                    Navigator.of(context).push(
+                                                                      MaterialPageRoute(
+                                                                        builder: (_) => const LegalTextScreen(
+                                                                          title: "Terms of Service",
+                                                                        ),
+                                                                      ),
+                                                                    );
+                                                                  },
+                                                              ),
+                                                              TextSpan(
+                                                                text: context.strings.andSymbol,
+                                                              ),
+                                                              TextSpan(
+                                                                text: context.strings.privacyPolicy,
+                                                                style: const TextStyle(
+                                                                  decoration: TextDecoration.underline,
+                                                                  fontWeight: FontWeight.bold,
+                                                                ),
+                                                                recognizer: TapGestureRecognizer()
+                                                                  ..onTap = () {
+                                                                    Navigator.of(context).push(
+                                                                      MaterialPageRoute(
+                                                                        builder: (_) => const LegalTextScreen(
+                                                                          title: "Privacy Policy",
+                                                                        ),
+                                                                      ),
+                                                                    );
+                                                                  },
+                                                              ),
+                                                              const TextSpan(
+                                                                text: ".",
+                                                              ),
+                                                            ],
                                                           ),
                                                         ),
                                                       ),
@@ -221,8 +275,8 @@ class SignInScreen extends StatelessWidget {
                                                   SizedBox(height: 20),
                                                   AppButton(
                                                     text: state.isLoading
-                                                        ? "Sending OTP..."
-                                                        : "Get OTP on WhatsApp",
+                                                        ? context.strings.sendingOtp
+                                                        : context.strings.getOtpOnWhatsApp,
                                                     color: state.isButtonEnabled
                                                         ? AppColors.primary
                                                         : Colors.grey,

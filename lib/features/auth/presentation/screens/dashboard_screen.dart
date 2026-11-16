@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vetnow_user/core/di/service_locator.dart';
+import 'package:vetnow_user/core/localization/app_strings.dart';
 import 'package:vetnow_user/core/network/api_client.dart';
 import 'package:vetnow_user/core/storage/secure_storage_service.dart';
 import 'package:vetnow_user/core/theme/app_theme_colors.dart';
@@ -126,9 +127,9 @@ class _MainDashboardState extends State<MainDashboard> {
               //     children: [_buildNavItem(0, Icons.home, "Home")],
               //   ),
               // ),
-              _buildNavItem(0, Icons.home, "Home"),
+              _buildNavItem(0, Icons.home, context.strings.homeTab),
               const SizedBox(width: 24),
-              _buildNavItem(1, Icons.calendar_month, "Bookings"),
+              _buildNavItem(1, Icons.calendar_month, context.strings.bookingsTab),
               //const SizedBox(width: 24),
             ],
           ),
@@ -196,7 +197,7 @@ class _MainDashboardState extends State<MainDashboard> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            "Press again to exit VetNow",
+            context.strings.pressAgainToExit,
             style: GoogleFonts.plusJakartaSans(fontSize: 12),
           ),
           behavior: SnackBarBehavior.floating,
@@ -244,7 +245,7 @@ class _MainDashboardState extends State<MainDashboard> {
                 const SizedBox(height: 32),
 
                 Text(
-                  "Quick Actions",
+                  sheetContext.strings.quickActions,
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
@@ -255,8 +256,8 @@ class _MainDashboardState extends State<MainDashboard> {
 
                 _buildActionTile(
                   sheetContext,
-                  title: "Register New Pet",
-                  sub: "Add a digital passport for your pet",
+                  title: sheetContext.strings.registerNewPet,
+                  sub: sheetContext.strings.registerNewPetSub,
                   icon: Icons.pets,
                   color: Colors.orange,
                   onTap: () {

@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:vetnow_user/core/localization/app_strings.dart';
 import 'package:vetnow_user/core/theme/app_color.dart';
 import 'package:vetnow_user/core/theme/app_theme_colors.dart';
+import 'package:vetnow_user/core/utils/doctor_utils.dart';
 import 'package:vetnow_user/core/utils/pet_utils.dart';
 import 'package:vetnow_user/features/auth/data/models/dashboard_response_model.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/dashboardProfile/dashboard_bloc.dart';
@@ -176,7 +178,7 @@ Widget _buildTopProfileRow(BuildContext context, DashboardState state) {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Hello, ${state.user?.firstName ?? 'Friend'}",
+              context.strings.helloUser(state.user?.firstName ?? context.strings.friend),
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 24,
                 fontWeight: FontWeight.w800,
@@ -184,7 +186,7 @@ Widget _buildTopProfileRow(BuildContext context, DashboardState state) {
               ),
             ),
             Text(
-              "How are your pets today?",
+              context.strings.howAreYourPetsToday,
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 14,
                 color: Colors.white.withValues(alpha: 0.8),
@@ -237,7 +239,7 @@ Widget _buildPetSection(BuildContext context, DashboardState state) {
             ),
             const SizedBox(height: 16),
             Text(
-              "No Pets Registered Yet",
+              context.strings.noPetsRegistered,
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
@@ -246,7 +248,7 @@ Widget _buildPetSection(BuildContext context, DashboardState state) {
             ),
             const SizedBox(height: 8),
             Text(
-              "Add your first pet to start tracking their health and booking appointments.",
+              context.strings.noPetsRegisteredDesc,
               textAlign: TextAlign.center,
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 13,
@@ -259,7 +261,7 @@ Widget _buildPetSection(BuildContext context, DashboardState state) {
               width: 160,
               height: 44,
               child: AppButton(
-                text: "Add Pet",
+                text: context.strings.addPet,
                 onPressed: () {
                   final bloc = context.read<DashboardBloc>();
                   Navigator.push(
@@ -357,7 +359,7 @@ Widget _buildPassportCard(BuildContext context, Pets pet) {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    pet.profile?.name ?? "Unnamed",
+                    pet.profile?.name ?? context.strings.unnamedPet,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.plusJakartaSans(
@@ -367,7 +369,7 @@ Widget _buildPassportCard(BuildContext context, Pets pet) {
                     ),
                   ),
                   Text(
-                    "${pet.profile?.ageMonths}m • ${pet.profile?.sex}",
+                    "${context.strings.ageMonthsFormat(pet.profile?.ageMonths ?? 0)}${pet.profile?.sex != null && pet.profile!.sex!.isNotEmpty ? ' • ${_formatGender(context, pet.profile?.sex)}' : ''}",
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 12,
                       color: context.appMutedText,
@@ -412,7 +414,7 @@ Widget _buildPassportCard(BuildContext context, Pets pet) {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      "Profile incomplete. Tap to finish.",
+                      context.strings.profileIncompleteTapToFinish,
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
@@ -450,20 +452,20 @@ Widget _buildPassportCard(BuildContext context, Pets pet) {
               _buildStatItem(
                 context,
                 Icons.monitor_weight,
-                "${pet.profile?.weightKg ?? 0}kg",
-                "Weight",
+                "${pet.profile?.weightKg ?? 0}${context.strings.kgUnit}",
+                context.strings.weightLabel,
               ),
               _buildStatItem(
                 context,
                 Icons.opacity,
                 pet.profile?.color ?? "-",
-                "Color",
+                context.strings.colorLabel,
               ),
               _buildStatItem(
                 context,
                 Icons.verified,
                 "${pet.vaccinations?.length ?? 0}",
-                "Vaccines",
+                context.strings.vaccinesLabel,
               ),
             ],
           ),
@@ -496,7 +498,7 @@ Widget _buildQuickActionsSection(BuildContext context) {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Quick Actions",
+          context.strings.quickActions,
           style: GoogleFonts.plusJakartaSans(
             fontSize: 18,
             fontWeight: FontWeight.w800,
@@ -509,7 +511,7 @@ Widget _buildQuickActionsSection(BuildContext context) {
           children: [
             _buildActionTile(
               context,
-              "Consult",
+              context.strings.consultAction,
               Icons.video_call,
               context.appSoftPrimary,
               AppColors.primary,
@@ -528,7 +530,7 @@ Widget _buildQuickActionsSection(BuildContext context) {
             ),
             _buildActionTile(
               context,
-              "Pets",
+              context.strings.petsAction,
               Icons.history,
               isDarkMode ? const Color(0xFF102A20) : const Color(0xFFF0FDF4),
               Colors.green,
@@ -547,7 +549,7 @@ Widget _buildQuickActionsSection(BuildContext context) {
             ),
             _buildActionTile(
               context,
-              "My Doctor",
+              context.strings.myDoctorAction,
               Icons.location_on,
               isDarkMode ? const Color(0xFF2A1010) : const Color(0xFFFEF2F2),
               Colors.redAccent,
@@ -559,7 +561,7 @@ Widget _buildQuickActionsSection(BuildContext context) {
 
             _buildActionTile(
               context,
-              "Records",
+              context.strings.recordsAction,
               Icons.folder,
               isDarkMode ? const Color(0xFF1F102A) : const Color(0xFFFAF5FF),
               Colors.purple,
@@ -589,7 +591,7 @@ Widget _buildUpcomingAppointments(BuildContext context, DashboardState state) {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Upcoming Appointments",
+            context.strings.upcomingAppointments,
             style: GoogleFonts.plusJakartaSans(
               fontSize: 16,
               fontWeight: FontWeight.w800,
@@ -628,7 +630,7 @@ Widget _buildUpcomingAppointments(BuildContext context, DashboardState state) {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  "No upcoming appointments",
+                  context.strings.noUpcomingAppointments,
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -637,7 +639,7 @@ Widget _buildUpcomingAppointments(BuildContext context, DashboardState state) {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "Schedule a visit with a vet to get started.",
+                  context.strings.scheduleVisitWithVet,
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 12,
                     color: context.appMutedText,
@@ -660,7 +662,7 @@ Widget _buildUpcomingAppointments(BuildContext context, DashboardState state) {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "Upcoming Appointments",
+              context.strings.upcomingAppointments,
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
@@ -678,7 +680,7 @@ Widget _buildUpcomingAppointments(BuildContext context, DashboardState state) {
                 );
               },
               child: Text(
-                "View All",
+                context.strings.viewAll,
                 style: TextStyle(
                   color: AppColors.primary,
                   fontWeight: FontWeight.bold,
@@ -774,7 +776,7 @@ Widget _buildAppointmentCard(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                appointment.doctor?.fullName ?? "Doctor",
+                DoctorUtils.formatDoctorName(appointment.doctor?.fullName),
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
@@ -787,7 +789,7 @@ Widget _buildAppointmentCard(
                   Icon(Icons.pets, size: 12, color: context.appMutedText),
                   const SizedBox(width: 4),
                   Text(
-                    appointment.pet?.name ?? "Pet",
+                    appointment.pet?.name ?? context.strings.petFallback,
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 12,
                       color: context.appMutedText,
@@ -824,7 +826,7 @@ Widget _buildAppointmentCard(
             borderRadius: BorderRadius.circular(10),
           ),
           child: Text(
-            appointment.status?.replaceAll('_', ' ') ?? "PENDING",
+            _getLocalizedStatus(context, appointment.status),
             style: GoogleFonts.plusJakartaSans(
               fontSize: 10,
               fontWeight: FontWeight.bold,
@@ -868,7 +870,7 @@ Widget _buildMedicalRecordsSection(BuildContext context, DashboardState state) {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "Medical Records",
+              context.strings.medicalRecords,
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
@@ -886,7 +888,7 @@ Widget _buildMedicalRecordsSection(BuildContext context, DashboardState state) {
                 );
               },
               child: Text(
-                "View All",
+                context.strings.viewAll,
                 style: TextStyle(
                   color: AppColors.primary,
                   fontWeight: FontWeight.bold,
@@ -941,7 +943,7 @@ Widget _buildMedicalRecordsSection(BuildContext context, DashboardState state) {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            doc.fileName ?? "Document",
+                            doc.fileName ?? context.strings.documentFallback,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.plusJakartaSans(
@@ -951,7 +953,7 @@ Widget _buildMedicalRecordsSection(BuildContext context, DashboardState state) {
                             ),
                           ),
                           Text(
-                            doc.documentType ?? "Report",
+                            doc.documentType ?? context.strings.reportFallback,
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 11,
                               color: context.appMutedText,
@@ -996,7 +998,7 @@ Widget _buildTimelineSection(BuildContext context, DashboardState state) {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "Today's Activities",
+              context.strings.todaysActivities,
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
@@ -1035,7 +1037,7 @@ Widget _buildTimelineSection(BuildContext context, DashboardState state) {
                 Icon(Icons.schedule, size: 40, color: Colors.blueGrey.shade200),
                 const SizedBox(height: 16),
                 Text(
-                  "No tasks for today",
+                  context.strings.noTasksForToday,
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -1089,7 +1091,7 @@ Widget _buildTimelineSection(BuildContext context, DashboardState state) {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Appointment with ${app.doctor?.fullName ?? 'Vet'}",
+                            context.strings.appointmentWith(DoctorUtils.formatDoctorName(app.doctor?.fullName)),
                             style: GoogleFonts.plusJakartaSans(
                               fontWeight: FontWeight.w800,
                               fontSize: 14,
@@ -1097,7 +1099,7 @@ Widget _buildTimelineSection(BuildContext context, DashboardState state) {
                             ),
                           ),
                           Text(
-                            "Today at ${app.appointmentTime ?? '---'}",
+                            context.strings.todayAt(app.appointmentTime ?? '---'),
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 12,
                               color: context.appMutedText,
@@ -1115,6 +1117,40 @@ Widget _buildTimelineSection(BuildContext context, DashboardState state) {
       ],
     ),
   );
+}
+
+String _formatGender(BuildContext context, String? sex) {
+  if (sex == null || sex.isEmpty) return "";
+  final upper = sex.toUpperCase();
+  if (upper.contains("MALE") && !upper.contains("FEMALE")) {
+    return context.strings.maleShort;
+  } else if (upper.contains("FEMALE")) {
+    return context.strings.femaleShort;
+  }
+  return sex;
+}
+
+String _getLocalizedStatus(BuildContext context, String? status) {
+  if (status == null || status.isEmpty) return context.strings.statusPending;
+  switch (status.toUpperCase()) {
+    case 'PENDING_PAYMENT':
+    case 'PENDING':
+      return context.strings.statusPending;
+    case 'CONFIRMED':
+      return context.strings.statusConfirmed;
+    case 'READY_TO_CONNECT':
+    case 'READY TO CONNECT':
+      return context.strings.statusReadyToConnect;
+    case 'IN_PROGRESS':
+    case 'IN PROGRESS':
+      return context.strings.statusInProgress;
+    case 'CANCELLED':
+      return context.strings.statusCancelled;
+    case 'COMPLETED':
+      return context.strings.statusCompleted;
+    default:
+      return status.replaceAll('_', ' ');
+  }
 }
 
 // --- HELPER SUB-WIDGETS ---
@@ -1343,7 +1379,7 @@ Widget _buildAssessmentAction(BuildContext context, Pets pet) {
               child: AssessmentFlow(
                 assessments: bloc.state.assessmentList,
                 petId: pet.profile?.id ?? "",
-                petName: pet.profile?.name ?? "Pet",
+                petName: pet.profile?.name ?? context.strings.petFallback,
               ),
             ),
           ),
@@ -1360,7 +1396,7 @@ Widget _buildAssessmentAction(BuildContext context, Pets pet) {
       ),
       child: Center(
         child: Text(
-          "Assess",
+          context.strings.assess,
           style: GoogleFonts.plusJakartaSans(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -1400,7 +1436,7 @@ Widget _buildFooterBranding(BuildContext context) {
           const Icon(Icons.favorite, color: Colors.redAccent, size: 20),
           const SizedBox(height: 8),
           Text(
-            "VetNow: Professional Pet Care",
+            context.strings.footerBranding,
             style: GoogleFonts.plusJakartaSans(
               color: Theme.of(context).brightness == Brightness.dark
                   ? const Color(0xFF6F7A8D)
@@ -1455,7 +1491,7 @@ Widget _buildErrorState(BuildContext context, String error) {
                 Icon(Icons.error_outline, size: 64, color: Colors.red[400]),
                 const SizedBox(height: 16),
                 Text(
-                  "Something went wrong",
+                  context.strings.somethingWentWrong,
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -1473,7 +1509,7 @@ Widget _buildErrorState(BuildContext context, String error) {
                 ),
                 const SizedBox(height: 24),
                 AppButton(
-                  text: "Try Again",
+                  text: context.strings.tryAgain,
                   onPressed: () =>
                       context.read<DashboardBloc>().add(OnDashboardCall()),
                 ),

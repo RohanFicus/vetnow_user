@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vetnow_user/core/network/api_exception.dart';
 import 'package:vetnow_user/core/storage/secure_storage_service.dart';
 
 import '../../domain/usecases/send_otp_usecase.dart';
@@ -62,11 +63,18 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
         phone: state.phone,
         countryCode: state.selectedCountryCode,
       );
-      storageService.saveRequestId(result.requestId.toString());
+      if (result.requestId == null || result.requestId!.isEmpty) {
+        throw ApiException("Failed to generate OTP request ID", 0);
+      }
+      storageService.saveRequestId(result.requestId!);
       print("Id${result.requestId}");
       emit(state.copyWith(isLoading: false, otpResult: result));
     } catch (e) {
-      emit(state.copyWith(isLoading: false, error: "Failed to send OTP"));
+      String message = "Failed to send OTP";
+      if (e is ApiException) {
+        message = e.message;
+      }
+      emit(state.copyWith(isLoading: false, error: message));
     }
   }
 }

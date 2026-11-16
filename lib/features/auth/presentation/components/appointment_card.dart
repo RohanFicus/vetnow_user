@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:vetnow_user/core/localization/app_strings.dart';
 import 'package:vetnow_user/core/theme/app_theme_colors.dart';
+import 'package:vetnow_user/core/utils/doctor_utils.dart';
 import 'package:vetnow_user/core/utils/pet_utils.dart';
 import 'package:vetnow_user/features/auth/data/models/dashboard_response_model.dart';
 
@@ -84,7 +86,7 @@ class AppointmentCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              appointment.pet?.name ?? "Unnamed Pet",
+                              appointment.pet?.name ?? context.strings.unnamedPetTag,
                               style: TextStyle(
                                 color: context.appText,
                                 fontSize: 16,
@@ -111,7 +113,7 @@ class AppointmentCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          status.replaceAll('_', ' '),
+                          _getLocalizedStatus(context, status),
                           style: TextStyle(
                             color: statusText,
                             fontSize: 12,
@@ -153,7 +155,9 @@ class AppointmentCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        appointment.doctor?.fullName ?? "N/A",
+                        DoctorUtils.formatDoctorName(
+                          appointment.doctor?.fullName,
+                        ),
                         style: TextStyle(
                           color: context.appMutedText,
                           fontSize: 13,
@@ -179,7 +183,7 @@ class AppointmentCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Consultation Fee",
+                    context.strings.consultationFee,
                     style: TextStyle(color: context.appMutedText, fontSize: 13),
                   ),
                   Text(
@@ -197,5 +201,27 @@ class AppointmentCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _getLocalizedStatus(BuildContext context, String status) {
+    switch (status.toUpperCase()) {
+      case 'PENDING_PAYMENT':
+      case 'PENDING':
+        return context.strings.statusPending;
+      case 'CONFIRMED':
+        return context.strings.statusConfirmed;
+      case 'READY_TO_CONNECT':
+      case 'READY TO CONNECT':
+        return context.strings.statusReadyToConnect;
+      case 'IN_PROGRESS':
+      case 'IN PROGRESS':
+        return context.strings.statusInProgress;
+      case 'CANCELLED':
+        return context.strings.statusCancelled;
+      case 'COMPLETED':
+        return context.strings.statusCompleted;
+      default:
+        return status.replaceAll('_', ' ');
+    }
   }
 }

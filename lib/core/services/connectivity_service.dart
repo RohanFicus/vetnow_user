@@ -27,6 +27,10 @@ class ConnectivityService {
   }
 
   Future<void> _checkConnectivity() async {
+    if (kIsWeb) {
+      _isConnected = true;
+      return;
+    }
     try {
       // Try to connect to a reliable host
       final result = await InternetAddress.lookup('google.com');

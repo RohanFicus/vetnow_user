@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vetnow_user/core/di/service_locator.dart';
+import 'package:vetnow_user/core/localization/app_strings.dart';
 import 'package:vetnow_user/core/network/api_client.dart';
 import 'package:vetnow_user/core/storage/secure_storage_service.dart';
 import 'package:vetnow_user/features/auth/data/datasources/dashboard_remote_data_source.dart';
@@ -10,6 +11,8 @@ import 'package:vetnow_user/features/auth/presentation/bloc/dashboardProfile/das
 import 'package:vetnow_user/features/auth/presentation/bloc/dashboardProfile/dashboard_event.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/dashboardProfile/dashboard_state.dart';
 import 'package:vetnow_user/features/auth/presentation/screens/sign_in_screen.dart';
+
+import 'package:vetnow_user/core/utils/doctor_utils.dart';
 
 import '../components/app_bar.dart';
 import '../components/AppButton.dart';
@@ -45,7 +48,10 @@ class MyDoctorScreen extends StatelessWidget {
             var selectedIndex = 0;
             return Scaffold(
               backgroundColor: context.appBackground,
-              appBar: buildSimpleAppBar(context, "${state.doctorProfile?.fullName}"),
+              appBar: buildSimpleAppBar(
+                context,
+                DoctorUtils.formatDoctorName(state.doctorProfile?.fullName),
+              ),
               body: Column(
                 children: [
                   Expanded(
@@ -83,7 +89,9 @@ class MyDoctorScreen extends StatelessWidget {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "${state.doctorProfile?.fullName}",
+                                        DoctorUtils.formatDoctorName(
+                                          state.doctorProfile?.fullName,
+                                        ),
                                         style: TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
@@ -117,21 +125,23 @@ class MyDoctorScreen extends StatelessWidget {
                           _buildHighlightRow(
                             context,
                             Icons.currency_rupee,
-                            "Consultation Fee",
+                            context.strings.consultationFee,
                             "₹${state.doctorProfile?.consultationFee}",
                             Colors.green,
                           ),
                           const SizedBox(height: 12),
-                          state.doctorProfile?.doctorAvailabilityResponse?.workingDays != null ? _buildHighlightRow(
-                            context,
-                            Icons.access_time,
-                            "Working Hours",
-                            "${state.doctorProfile?.doctorAvailabilityResponse?.workingDays}",
-                            Colors.purple,
-                          ) : SizedBox(),
+                          state.doctorProfile?.doctorAvailabilityResponse?.workingDays != null
+                              ? _buildHighlightRow(
+                                  context,
+                                  Icons.access_time,
+                                  context.strings.workingHours,
+                                  _formatWorkingDays(context, state.doctorProfile?.doctorAvailabilityResponse?.workingDays),
+                                  Colors.purple,
+                                )
+                              : const SizedBox(),
                           const SizedBox(height: 12),
                           Text(
-                            "Slots Available",
+                            context.strings.slotsAvailable,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
@@ -142,7 +152,7 @@ class MyDoctorScreen extends StatelessWidget {
                           _buildHighlightRow(
                             context,
                             state.doctorProfile?.doctorAvailabilityResponse?.morningActive == true ? Icons.check : Icons.cancel,
-                            "Morning",
+                            context.strings.morning,
                             "${state.doctorProfile?.doctorAvailabilityResponse?.morningStart} - ${state.doctorProfile?.doctorAvailabilityResponse?.morningEnd}",
                             Colors.blue,
                           ),
@@ -150,7 +160,7 @@ class MyDoctorScreen extends StatelessWidget {
                           _buildHighlightRow(
                             context,
                             state.doctorProfile?.doctorAvailabilityResponse?.afternoonActive == true ? Icons.check : Icons.cancel,
-                            "Afternoon",
+                            context.strings.afternoon,
                             "${state.doctorProfile?.doctorAvailabilityResponse?.afternoonStart} - ${state.doctorProfile?.doctorAvailabilityResponse?.afternoonEnd}",
                             Colors.blue,
                           ),
@@ -159,7 +169,7 @@ class MyDoctorScreen extends StatelessWidget {
                           _buildHighlightRow(
                             context,
                             state.doctorProfile?.doctorAvailabilityResponse?.eveningActive == true ? Icons.check : Icons.cancel,
-                            "Evening",
+                            context.strings.evening,
                             "${state.doctorProfile?.doctorAvailabilityResponse?.eveningStart} - ${state.doctorProfile?.doctorAvailabilityResponse?.eveningEnd}",
                             Colors.blue,
                           ),
@@ -168,7 +178,7 @@ class MyDoctorScreen extends StatelessWidget {
 
                           // Specializations
                           Text(
-                            "Specializations",
+                            context.strings.specializations,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
@@ -180,10 +190,10 @@ class MyDoctorScreen extends StatelessWidget {
                             spacing: 10,
                             runSpacing: 10,
                             children: [
-                              _buildChip(context, "General Medicine"),
-                              _buildChip(context, "Surgery"),
-                              _buildChip(context, "Preventive Care"),
-                              _buildChip(context, "Emergency Care"),
+                              _buildChip(context, context.strings.specGeneralMedicine),
+                              _buildChip(context, context.strings.specSurgery),
+                              _buildChip(context, context.strings.specPreventiveCare),
+                              _buildChip(context, context.strings.specEmergencyCare),
                             ],
                           ),
 
@@ -191,7 +201,7 @@ class MyDoctorScreen extends StatelessWidget {
 
                           // About
                           Text(
-                            "About",
+                            context.strings.about,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
@@ -213,7 +223,9 @@ class MyDoctorScreen extends StatelessWidget {
                               ],
                             ),
                             child: Text(
-                              "Dr. ${state.doctorProfile?.fullName} is a compassionate veterinarian with over a decade of experience in treating small animals. She specializes in preventive care and emergency surgeries.",
+                              context.strings.aboutDoctorBio(
+                                DoctorUtils.formatDoctorName(state.doctorProfile?.fullName),
+                              ),
                               style: TextStyle(
                                 color: context.appMutedText,
                                 height: 1.5,
@@ -316,5 +328,23 @@ class MyDoctorScreen extends StatelessWidget {
         style: const TextStyle(color: AppColors.primary, fontSize: 12),
       ),
     );
+  }
+
+  String _formatWorkingDays(BuildContext context, List<String>? days) {
+    if (days == null || days.isEmpty) return '';
+    const dayMap = {
+      'MON': 'सोम',
+      'TUE': 'मंगल',
+      'WED': 'बुध',
+      'THU': 'गुरु',
+      'FRI': 'शुक्र',
+      'SAT': 'शनि',
+      'SUN': 'रवि',
+    };
+    final isHindi = context.strings.languageCode == 'hi' || AppStrings.currentLanguage == 'hi';
+    if (isHindi) {
+      return days.map((d) => dayMap[d.trim().toUpperCase()] ?? d).join(', ');
+    }
+    return days.join(', ');
   }
 }

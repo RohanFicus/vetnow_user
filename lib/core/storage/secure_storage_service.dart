@@ -9,8 +9,22 @@ class SecureStorageService {
   static const _customer_profile = 'customer_profile';
   static const _dashboard_data = 'dashboard_data';
   static const _pet_profile = 'pet_profile';
+  static const _onboardingStage = 'onboarding_stage';
+  static const _languageKey = 'app_language';
 
   final _storage = const FlutterSecureStorage();
+
+  Future<void> saveOnboardingStage(String stage) async {
+    await _storage.write(key: _onboardingStage, value: stage);
+  }
+
+  Future<String?> getOnboardingStage() async {
+    return await _storage.read(key: _onboardingStage);
+  }
+
+  Future<void> clearOnboardingStage() async {
+    await _storage.delete(key: _onboardingStage);
+  }
 
   Future<void> saveToken(String token) async {
     await _storage.write(key: _tokenKey, value: token);
@@ -79,6 +93,14 @@ class SecureStorageService {
 
   Future<void> clearCustomerProfileJson() async {
     await _storage.delete(key: _customer_profile);
+  }
+
+  Future<void> saveLanguageCode(String languageCode) async {
+    await _storage.write(key: _languageKey, value: languageCode);
+  }
+
+  Future<String?> getLanguageCode() async {
+    return await _storage.read(key: _languageKey);
   }
 
   Future<void> clearAll() async {

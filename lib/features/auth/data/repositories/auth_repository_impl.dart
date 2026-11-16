@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:vetnow_user/core/network/api_exception.dart';
 import 'package:vetnow_user/features/auth/data/datasources/auth_local_data_source.dart';
 import 'package:vetnow_user/features/auth/data/models/dashboard_response_model.dart';
 import 'package:vetnow_user/features/auth/domain/entities/meta_entity.dart';
@@ -26,6 +27,15 @@ class AuthRepositoryImpl implements AuthRepository {
       phone: phone,
       countryCode: countryCode,
     );
+
+    if (response.data?.requestId == null) {
+      throw ApiException(
+        response.message.isNotEmpty
+            ? response.message
+            : "Failed to obtain OTP request ID",
+        0,
+      );
+    }
 
     return OtpEntity(
       requestId: response.data?.requestId,

@@ -31,6 +31,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
   late Razorpay _razorpay;
   bool _isPaymentStarted = false; // Prevent multiple calls
   bool _hasAutoTriggered = false; // Prevents auto-reopening loop after failure
+  bool _isPaymentCompleted = false; // Lock once payment success callback is received
 
   @override
   void initState() {
@@ -49,17 +50,18 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
     _isPaymentStarted = false;
-    final appointmentId = context
-        .read<DashboardBloc>()
-        .state
-        .lastBookedAppointment
-        ?.appointmentId;
+    _isPaymentCompleted = true;
+    if (!mounted) return;
+    final state = context.read<DashboardBloc>().state;
+    final appointmentId = state.lastBookedAppointment?.appointmentId;
     if (appointmentId != null) {
       context.read<DashboardBloc>().add(
         VerifyPaymentEvent(
           PaymentVerifyRequest(
             appointmentId: appointmentId,
-            razorpayOrderId: response.orderId ?? '',
+            razorpayOrderId: response.orderId ??
+                state.lastBookedAppointment?.paymentOrderId ??
+                '',
             razorpayPaymentId: response.paymentId ?? '',
             razorpaySignature: response.signature ?? '',
           ),
@@ -70,6 +72,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
 
   void _handlePaymentError(PaymentFailureResponse response) {
     _isPaymentStarted = false;
+    _isPaymentCompleted = false;
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("Payment Failed: ${response.message}")),
     );
@@ -77,33 +81,38 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
 
   void _handleExternalWallet(ExternalWalletResponse response) {
     _isPaymentStarted = false;
+    _isPaymentCompleted = false;
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("External Wallet: ${response.walletName}")),
     );
   }
 
   void _startPayment(int amount, String? orderId) {
-    if (_isPaymentStarted) return;
+    if (_isPaymentStarted || _isPaymentCompleted) return;
     _isPaymentStarted = true;
 
-    var options = {
-      'key': 'rzp_test_Sd1PKsnAE8I24x',
+    final user = context.read<DashboardBloc>().state.user;
+    final Map<String, dynamic> options = {
+      'key': 'rzp_live_TcIvBGGoxl1A49',
       'amount': amount,
       'name': 'VetNow',
       'description': 'Appointment Booking',
-      'retry': {'enabled': true, 'max_count': 1},
-      'send_sms_hash': true,
-      'prefill': {
-        'contact': context.read<DashboardBloc>().state.user?.mobile ?? '',
-        'email': context.read<DashboardBloc>().state.user?.email ?? '',
-      },
-      'external': {
-        'wallets': ['paytm'],
-      },
     };
 
-    if (orderId != null && !orderId.contains("demo")) {
-      options['order_id'] = orderId;
+    final Map<String, dynamic> prefill = {};
+    if (user?.mobile != null && user!.mobile!.trim().isNotEmpty) {
+      prefill['contact'] = user.mobile!.trim();
+    }
+    if (user?.email != null && user!.email!.trim().isNotEmpty) {
+      prefill['email'] = user.email!.trim();
+    }
+    if (prefill.isNotEmpty) {
+      options['prefill'] = prefill;
+    }
+
+    if (orderId != null && !orderId.contains("demo") && orderId.trim().isNotEmpty) {
+      options['order_id'] = orderId.trim();
     }
 
     try {
@@ -123,6 +132,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
             !state.isLoading &&
             !_isPaymentStarted &&
             !_hasAutoTriggered &&
+            !_isPaymentCompleted &&
             !state.paymentSuccess) {
           _hasAutoTriggered = true;
           _startPayment(
@@ -135,19 +145,23 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
           final int feePaise = state.lastBookedAppointment?.amount ?? 110000;
           final fee = (feePaise / 100).toStringAsFixed(2);
           final dashboardBloc = context.read<DashboardBloc>();
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => BlocProvider.value(
-                value: dashboardBloc,
-                child: ConfirmationScreen(
-                  appointmentRequest: widget.appointmentRequest,
-                  selectedTime: widget.selectedTime,
-                  fee: fee,
+          // Allow Razorpay native Android SDK 1-second redirect animation to complete smoothly
+          Future.delayed(const Duration(milliseconds: 1200), () {
+            if (!context.mounted) return;
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BlocProvider.value(
+                  value: dashboardBloc,
+                  child: ConfirmationScreen(
+                    appointmentRequest: widget.appointmentRequest,
+                    selectedTime: widget.selectedTime,
+                    fee: fee,
+                  ),
                 ),
               ),
-            ),
-          );
+            );
+          });
         }
 
         if (state.error != null && !state.bookingSuccess) {
@@ -300,51 +314,29 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       SizedBox(
                         width: 150,
                         height: 45,
-                        child: GestureDetector(
-                          onLongPress: () {
-                            // DEMO BYPASS: Long press to force success if Razorpay hangs
-                            if (state.lastBookedAppointment != null) {
-                              context.read<DashboardBloc>().add(
-                                VerifyPaymentEvent(
-                                  PaymentVerifyRequest(
-                                    appointmentId: state
-                                        .lastBookedAppointment!
-                                        .appointmentId,
-                                    razorpayOrderId: state
-                                        .lastBookedAppointment!
-                                        .paymentOrderId,
-                                    razorpayPaymentId:
-                                        'pay_bypass_${DateTime.now().millisecondsSinceEpoch}',
-                                    razorpaySignature: 'sig_bypass',
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                          child: AppButton(
-                            text: state.isLoading ? "Loading..." : "Pay Now",
-                            textColor: Colors.white,
-                            color: AppColors.primary,
-                            onPressed: state.isLoading || state.paymentSuccess
-                                ? null
-                                : () {
-                                    if (state.lastBookedAppointment != null) {
-                                      _startPayment(
-                                        state.lastBookedAppointment!.amount,
-                                        state
-                                            .lastBookedAppointment!
-                                            .paymentOrderId,
-                                      );
-                                    } else if (widget.appointmentRequest !=
-                                        null) {
-                                      context.read<DashboardBloc>().add(
-                                        BookAppointmentEvent(
-                                          widget.appointmentRequest!,
-                                        ),
-                                      );
-                                    }
-                                  },
-                          ),
+                        child: AppButton(
+                          text: state.isLoading ? "Loading..." : "Pay Now",
+                          textColor: Colors.white,
+                          color: AppColors.primary,
+                          onPressed: state.isLoading || state.paymentSuccess || _isPaymentCompleted
+                              ? null
+                              : () {
+                                  if (state.lastBookedAppointment != null) {
+                                    _startPayment(
+                                      state.lastBookedAppointment!.amount,
+                                      state
+                                          .lastBookedAppointment!
+                                          .paymentOrderId,
+                                    );
+                                  } else if (widget.appointmentRequest !=
+                                      null) {
+                                    context.read<DashboardBloc>().add(
+                                      BookAppointmentEvent(
+                                        widget.appointmentRequest!,
+                                      ),
+                                    );
+                                  }
+                                },
                         ),
                       ),
                     ],

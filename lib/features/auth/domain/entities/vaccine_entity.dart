@@ -44,7 +44,7 @@ class VaccineEntity {
       "vaccineId": vaccineId,
       "vaccineCode": vaccineCode,
       "vaccineName": vaccineName,
-      "status": status,
+      "status": status?.toUpperCase() ?? "NO",
       "vaccinationDate": vaccinationDate,
     };
   }

@@ -1,11 +1,11 @@
 {
-    "name": "vetnow_user",
-    "short_name": "vetnow_user",
+    "name": "VetNow - Pet Care & Telehealth",
+    "short_name": "VetNow",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#071b5d",
+    "theme_color": "#0061CE",
+    "description": "Your pet’s health companion to make your pet healthy and happy.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

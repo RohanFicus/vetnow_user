@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import '../storage/secure_storage_service.dart';
 import 'auth_interceptor.dart';
@@ -25,7 +26,7 @@ class ApiClient {
     // 🔥 ADD LOGGER
     dio.interceptors.addAll([
       AuthInterceptor(storage),
-      if (!bool.fromEnvironment('dart.vm.product')) DioLoggerInterceptor(),
+      if (kDebugMode) DioLoggerInterceptor(),
     ]);
   }
 }

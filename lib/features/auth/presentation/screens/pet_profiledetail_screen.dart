@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:vetnow_user/core/localization/app_strings.dart';
 import 'package:vetnow_user/core/theme/app_color.dart';
 import 'package:vetnow_user/core/theme/app_theme_colors.dart';
 import 'package:vetnow_user/core/utils/pet_utils.dart';
@@ -110,7 +111,7 @@ class PetProfileDetailScreen extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            pet.profile?.name ?? 'Unknown',
+            pet.profile?.name ?? context.strings.unnamedPet,
             style: GoogleFonts.plusJakartaSans(
               fontSize: 28,
               fontWeight: FontWeight.bold,
@@ -122,12 +123,12 @@ class PetProfileDetailScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _buildBadge(
-                pet.profile?.speciesName ?? "Species",
+                pet.profile?.speciesName ?? context.strings.species,
                 const Color(0xFF0061CE),
               ),
               const SizedBox(width: 8),
               _buildBadge(
-                pet.profile?.breedName ?? "Unknown Breed",
+                pet.profile?.breedName ?? context.strings.unknownBreed,
                 Colors.blueGrey,
               ),
             ],
@@ -140,15 +141,15 @@ class PetProfileDetailScreen extends StatelessWidget {
               _buildStatBox(
                 context,
                 Icons.pets,
-                "Age",
-                "${pet.profile?.ageMonths} Months",
+                context.strings.age,
+                context.strings.ageInMonthsValue(pet.profile?.ageMonths ?? 0),
               ),
               const SizedBox(width: 16),
               _buildStatBox(
                 context,
                 Icons.search,
-                "Gender",
-                pet.profile?.sex ?? "N/A",
+                context.strings.gender,
+                _formatGender(context, pet.profile?.sex),
               ),
             ],
           ),
@@ -158,14 +159,14 @@ class PetProfileDetailScreen extends StatelessWidget {
               _buildStatBox(
                 context,
                 Icons.monitor_weight,
-                "Weight",
-                "${pet.profile?.weightKg} kg",
+                context.strings.weightLabel,
+                "${pet.profile?.weightKg ?? 0} ${context.strings.kgUnit}",
               ),
               const SizedBox(width: 16),
               _buildStatBox(
                 context,
                 Icons.palette,
-                "Color",
+                context.strings.colorLabel,
                 pet.profile?.color ?? "N/A",
               ),
             ],
@@ -192,7 +193,7 @@ class PetProfileDetailScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "UNIQUE PET ID",
+                      context.strings.uniquePetId,
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
@@ -201,7 +202,7 @@ class PetProfileDetailScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      pet.profile?.petUniqueId ?? 'Not Assigned',
+                      pet.profile?.petUniqueId ?? context.strings.notAssigned,
                       style: GoogleFonts.firaCode(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -256,7 +257,7 @@ class PetProfileDetailScreen extends StatelessWidget {
                   const Icon(Icons.analytics, color: Color(0xFF0061CE), size: 20),
                   const SizedBox(width: 8),
                   Text(
-                    "Latest Health Status",
+                    context.strings.latestHealthStatus,
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -309,7 +310,7 @@ class PetProfileDetailScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Score: ${assessment.totalScore ?? 0}",
+                context.strings.scoreLabel(assessment.totalScore ?? 0),
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -318,7 +319,7 @@ class PetProfileDetailScreen extends StatelessWidget {
               ),
               if (assessment.assessedAt != null)
                 Text(
-                  "Assessed on: ${assessment.assessedAt!.split('T').first}",
+                  context.strings.assessedOnDate(assessment.assessedAt!.split('T').first),
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 12,
                     color: context.appMutedText,
@@ -348,7 +349,7 @@ class PetProfileDetailScreen extends StatelessWidget {
               const Icon(Icons.check_circle, color: Colors.green, size: 20),
               const SizedBox(width: 8),
               Text(
-                "Medical Details",
+                context.strings.medicalDetails,
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -360,7 +361,7 @@ class PetProfileDetailScreen extends StatelessWidget {
           const SizedBox(height: 16),
           if (pet.vaccinations == null || pet.vaccinations!.isEmpty)
             Text(
-              "No vaccination records found.",
+              context.strings.noVaccinationRecords,
               style: TextStyle(color: context.appMutedText),
             )
           else
@@ -463,11 +464,11 @@ class PetProfileDetailScreen extends StatelessWidget {
       left: 24,
       right: 24,
       child: AppButton(
-        text: "Edit Pet Profile",
+        text: context.strings.editPetProfileButton,
         icon: Icons.edit,
         color: context.isDarkMode ? AppColors.primary : const Color(0xFF1E293B),
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final result = await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => AddPetWizardScreen(
@@ -481,13 +482,31 @@ class PetProfileDetailScreen extends StatelessWidget {
                   iconUrl: '',
                 ),
                 pet: pet,
-                onComplete: () => Navigator.pop(context),
+                onComplete: () => Navigator.pop(context, true),
                 onBack: () => Navigator.pop(context),
               ),
             ),
           );
+          if (result == true && context.mounted) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted && Navigator.canPop(context)) {
+                Navigator.pop(context, true);
+              }
+            });
+          }
         },
       ),
     );
+  }
+
+  String _formatGender(BuildContext context, String? sex) {
+    if (sex == null || sex.isEmpty) return "N/A";
+    final upper = sex.toUpperCase();
+    if (upper.contains("MALE") && !upper.contains("FEMALE")) {
+      return context.strings.maleShort;
+    } else if (upper.contains("FEMALE")) {
+      return context.strings.femaleShort;
+    }
+    return sex;
   }
 }

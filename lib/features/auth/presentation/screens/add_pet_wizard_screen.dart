@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vetnow_user/core/localization/app_strings.dart';
 import 'package:vetnow_user/core/network/api_client.dart';
 import 'package:vetnow_user/core/storage/secure_storage_service.dart';
 import 'package:vetnow_user/core/theme/app_color.dart';
@@ -60,10 +61,7 @@ class _AddPetWizardScreenState extends State<AddPetWizardScreen> {
     } else {
       if (widget.pet != null) {
         // Edit mode - go back to previous screen
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const MainDashboard()),
-        );
+        Navigator.pop(context, true);
       } else if (widget.existing == true) {
         // Add existing pet mode - go to dashboard
         Navigator.push(
@@ -325,46 +323,58 @@ class _AddPetWizardScreenState extends State<AddPetWizardScreen> {
 
           // ✅ Final success
           if (state.step3Success && _currentStep == 2) {
-            if (widget.pet != null) {
-              // Edit mode - go back to previous screen
-              Navigator.pop(context);
-            } else if (widget.existing) {
-              // Add existing pet mode - go to dashboard
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => const MainDashboard()),
-              );
-            } else {
-              // New pet mode - call onComplete
-              widget.onComplete();
-            }
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!mounted) return;
+              if (widget.pet != null) {
+                // Edit mode - go back to previous screen
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context, true);
+                }
+              } else if (widget.existing) {
+                // Add existing pet mode - go to dashboard
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const MainDashboard()),
+                );
+              } else {
+                // New pet mode - call onComplete
+                widget.onComplete();
+              }
+            });
           }
         },
         child: BlocBuilder<ProfileBloc, ProfileState>(
           builder: (context, state) {
-            return Scaffold(
-              backgroundColor: context.appBackground,
-              appBar: _buildModernWizardHeader(context),
-              body: Column(
-                children: [
-                  Expanded(
-                    child: PageView(
-                      controller: _pageController,
-                      physics:
-                          const NeverScrollableScrollPhysics(), // Disable swipe
-                      children: [
-                        Step1BasicDetails(
-                          speciesModel: widget.speciesModel,
-                          pet: widget.pet,
-                          existing: widget.existing,
-                        ),
-                        Step2PhysicalDetails(pet: widget.pet),
-                        Step3MedicalDetails(pet: widget.pet),
-                      ],
+            return PopScope(
+              canPop: false,
+              onPopInvokedWithResult: (didPop, result) {
+                if (didPop) return;
+                _prevPage();
+              },
+              child: Scaffold(
+                backgroundColor: context.appBackground,
+                appBar: _buildModernWizardHeader(context),
+                body: Column(
+                  children: [
+                    Expanded(
+                      child: PageView(
+                        controller: _pageController,
+                        physics:
+                            const NeverScrollableScrollPhysics(), // Disable swipe
+                        children: [
+                          Step1BasicDetails(
+                            speciesModel: widget.speciesModel,
+                            pet: widget.pet,
+                            existing: widget.existing,
+                          ),
+                          Step2PhysicalDetails(pet: widget.pet),
+                          Step3MedicalDetails(pet: widget.pet),
+                        ],
+                      ),
                     ),
-                  ),
-                  _buildBottomNavigation(context, state),
-                ],
+                    _buildBottomNavigation(context, state),
+                  ],
+                ),
               ),
             );
           },
@@ -385,7 +395,7 @@ class _AddPetWizardScreenState extends State<AddPetWizardScreen> {
       title: Column(
         children: [
           Text(
-            widget.pet != null ? "Edit Profile" : "New Pet",
+            widget.pet != null ? context.strings.editPetProfile : context.strings.newPet,
             style: TextStyle(
               color: context.appText,
               fontSize: 16,
@@ -443,7 +453,7 @@ class _AddPetWizardScreenState extends State<AddPetWizardScreen> {
             Expanded(
               flex: 1,
               child: AppButton(
-                text: "Skip",
+                text: context.strings.skip,
                 color: Colors.transparent,
                 textColor: context.appMutedText,
                 onPressed: widget.existing
@@ -457,7 +467,7 @@ class _AddPetWizardScreenState extends State<AddPetWizardScreen> {
             flex: 2,
             child: AppButton(
               isLoading: state.isLoading,
-              text: _currentStep == 2 ? "Finish" : "Continue",
+              text: _currentStep == 2 ? context.strings.finish : context.strings.continueText,
               color: isValid ? AppColors.primary : context.appBorder,
               textColor: isValid ? Colors.white : context.appMutedText,
               onPressed: isValid
@@ -515,7 +525,7 @@ class Step1BasicDetails extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                "Basic Details",
+                context.strings.basicDetails,
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -524,15 +534,15 @@ class Step1BasicDetails extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                "Provide basic information about your pet",
+                context.strings.basicDetailsSubtitle,
                 style: TextStyle(color: context.appMutedText),
               ),
               const SizedBox(height: 10),
 
               // --- Pet Name ---
               AppTextField(
-                label: 'Pet Name',
-                hint: "Enter pet name",
+                label: context.strings.petName,
+                hint: context.strings.enterPetName,
                 value: state.petName,
                 onChanged: (name) =>
                     context.read<ProfileBloc>().add(PetNameChanged(name)),
@@ -541,8 +551,8 @@ class Step1BasicDetails extends StatelessWidget {
 
               // --- Birthday ---
               AppTextField(
-                label: 'Birthday',
-                hint: "Enter pet birthday",
+                label: context.strings.birthday,
+                hint: context.strings.enterPetBirthday,
                 value: state.petBirthday,
                 readOnly: true,
                 onTap: () async {
@@ -565,8 +575,8 @@ class Step1BasicDetails extends StatelessWidget {
 
               // --- Age ---
               AppTextField(
-                label: 'Age (in months)',
-                hint: "Enter age",
+                label: context.strings.ageInMonths,
+                hint: context.strings.enterAge,
                 readOnly: true,
                 value: state.petAgeInYears == 0
                     ? ''
@@ -577,8 +587,8 @@ class Step1BasicDetails extends StatelessWidget {
               // --- Species Selection ---
               if (speciesModel?.id == null)
                 CustomDropdown<SpeciesModel>(
-                  label: "Species",
-                  hint: "Select species",
+                  label: context.strings.species,
+                  hint: context.strings.selectSpecies,
                   value: state.specieSelected,
                   list: state.speciesEntityList.map((species) {
                     return DropdownMenuItem<SpeciesModel>(
@@ -606,8 +616,8 @@ class Step1BasicDetails extends StatelessWidget {
               // --- Breed Selection ---
               existing == false
                   ? CustomDropdown(
-                      label: "Breed",
-                      hint: "Select breed",
+                      label: context.strings.breed,
+                      hint: context.strings.selectBreed,
                       value:
                           state.breedsEntityList.contains(state.breedSelected)
                           ? state.breedSelected
@@ -630,8 +640,8 @@ class Step1BasicDetails extends StatelessWidget {
 
               existing == true && pet?.profile?.breedName?.isNotEmpty == true
                   ? AppTextField(
-                      label: 'Breed',
-                      hint: "Select breed",
+                      label: context.strings.breed,
+                      hint: context.strings.selectBreed,
                       readOnly: true,
                       enabled: false,
                       onChanged: (breed) {
@@ -660,7 +670,7 @@ class Step1BasicDetails extends StatelessWidget {
                     )
                   : SizedBox(),
               const SizedBox(height: 10),
-              _inputLabel(context, "Gender"),
+              _inputLabel(context, context.strings.gender),
               const SizedBox(height: 10),
               _buildGenderToggle(context, state),
               const SizedBox(height: 10),
@@ -669,7 +679,7 @@ class Step1BasicDetails extends StatelessWidget {
               // 4. Additional Info for Cow & Buffalo (Livestock)
               // -------------------------------------------------------
               if (_isLivestock(state) && state.petSex == "FEMALE") ...[
-                _inputLabel(context, "Milking Status"),
+                _inputLabel(context, context.strings.milkingStatus),
                 const SizedBox(height: 10),
                 _buildToggleButton(
                   context: context,
@@ -682,7 +692,7 @@ class Step1BasicDetails extends StatelessWidget {
 
                 // Only ask Pregnancy if NOT milking
                 if (state.milkingStatus == false) ...[
-                  _inputLabel(context, "Is the animal pregnant?"),
+                  _inputLabel(context, context.strings.isAnimalPregnant),
                   const SizedBox(height: 10),
                   _buildToggleButton(
                     context: context,
@@ -702,8 +712,8 @@ class Step1BasicDetails extends StatelessWidget {
                 _inputLabel(
                   context,
                   state.petSex == "MALE"
-                      ? "Neutered (Castrated)"
-                      : "Spayed (Sterilized)",
+                      ? context.strings.neuteredCastrated
+                      : context.strings.spayedSterilized,
                 ),
                 const SizedBox(height: 10),
                 _buildToggleButton(
@@ -724,14 +734,13 @@ class Step1BasicDetails extends StatelessWidget {
                 const SizedBox(height: 20),
               ] else if (!_isLivestock(state)) ...[
                 // Default fallback for other animals if needed
-                _inputLabel(context, "Spayed / Neutered"),
+                _inputLabel(context, context.strings.spayedOrNeutered),
                 const SizedBox(height: 10),
                 _buildToggleButton(
                   context: context,
                   isSelected: state.petSpayed == true,
                   onTap: (val) =>
                       context.read<ProfileBloc>().add(PetSpayedChanged(val)),
-                  //context: context,
                 ),
                 const SizedBox(height: 20),
               ],
@@ -766,14 +775,14 @@ class Step1BasicDetails extends StatelessWidget {
       children: [
         _selectableButton(
           context,
-          "YES",
+          context.strings.yesShort,
           isSelected == true,
           () => onTap(true),
         ),
         const SizedBox(width: 15),
         _selectableButton(
           context,
-          "NO",
+          context.strings.noShort,
           isSelected == false,
           () => onTap(false),
         ),
@@ -784,11 +793,11 @@ class Step1BasicDetails extends StatelessWidget {
   Widget _buildGenderToggle(BuildContext context, ProfileState state) {
     return Row(
       children: [
-        _selectableButton(context, "MALE", state.petSex == "MALE", () {
+        _selectableButton(context, context.strings.maleShort, state.petSex == "MALE", () {
           context.read<ProfileBloc>().add(const PetGenderChanged("MALE"));
         }),
         const SizedBox(width: 15),
-        _selectableButton(context, "FEMALE", state.petSex == "FEMALE", () {
+        _selectableButton(context, context.strings.femaleShort, state.petSex == "FEMALE", () {
           context.read<ProfileBloc>().add(const PetGenderChanged("FEMALE"));
         }),
       ],
@@ -860,15 +869,15 @@ class Step2PhysicalDetails extends StatelessWidget {
                     bottomRight: Radius.circular(30),
                   ),
                 ),
-                child: const Row(
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.lightbulb, color: Colors.amber, size: 20),
-                    SizedBox(width: 12),
+                    const Icon(Icons.lightbulb, color: Colors.amber, size: 20),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        "These details help vets provide better care and track your pet's health over time.",
-                        style: TextStyle(
+                        context.strings.physicalDetailsTip,
+                        style: const TextStyle(
                           color: Colors.white70,
                           height: 1.4,
                           fontSize: 13,
@@ -903,7 +912,7 @@ class Step2PhysicalDetails extends StatelessWidget {
                         Expanded(
                           flex: 7,
                           child: Text(
-                            "Physical Details",
+                            context.strings.physicalDetails,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 22,
@@ -916,7 +925,7 @@ class Step2PhysicalDetails extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      "Add physical measurements and any special notes about your pet.",
+                      context.strings.physicalDetailsSubtitle,
                       textAlign: TextAlign.center,
                       style: TextStyle(color: context.appMutedText),
                     ),
@@ -924,8 +933,8 @@ class Step2PhysicalDetails extends StatelessWidget {
 
                     /// Weight
                     AppTextField(
-                      label: 'Weight (kg)',
-                      hint: "Enter pet weight",
+                      label: context.strings.weightKg,
+                      hint: context.strings.enterWeight,
                       value: state.weight == 0 ? '' : state.weight.toString(),
                       keyboardType: TextInputType.number,
                       onChanged: (value) {
@@ -939,8 +948,8 @@ class Step2PhysicalDetails extends StatelessWidget {
 
                     /// Color
                     AppTextField(
-                      label: 'Color',
-                      hint: "Enter pet color",
+                      label: context.strings.color,
+                      hint: context.strings.enterColor,
                       value: state.color,
                       onChanged: (color) {
                         context.read<ProfileBloc>().add(PetColorChanged(color));
@@ -1046,7 +1055,7 @@ class Step3MedicalDetails extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      "Medical Details",
+                      context.strings.medicalDetails,
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -1055,7 +1064,7 @@ class Step3MedicalDetails extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      "Select vaccines and upload records",
+                      context.strings.medicalDetailsSubtitle,
                       textAlign: TextAlign.center,
                       style: TextStyle(color: context.appMutedText),
                     ),
@@ -1064,16 +1073,16 @@ class Step3MedicalDetails extends StatelessWidget {
                     /// Vaccine Dropdown
                     if (state.vaccineEntityList.isEmpty == true)
                       CustomDropdown(
-                        label: "Vaccine Administered",
-                        hint: "Select vaccine",
+                        label: context.strings.vaccineAdministered,
+                        hint: context.strings.selectVaccine,
                         value: null,
                         list: const [],
                         onChanged: null,
                       )
                     else
                       CustomDropdown(
-                        label: "Vaccine Administered",
-                        hint: "Select vaccine",
+                        label: context.strings.vaccineAdministered,
+                        hint: context.strings.selectVaccine,
                         value: null,
                         list: state.vaccineEntityList.map((vaccine) {
                           return DropdownMenuItem<VaccineModel>(
@@ -1120,7 +1129,7 @@ class Step3MedicalDetails extends StatelessWidget {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        "Medical Records (*Optional)",
+                        context.strings.medicalRecordsOptional,
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
                           color: context.appText,
@@ -1154,7 +1163,7 @@ class Step3MedicalDetails extends StatelessWidget {
                               child: Text(
                                 hasFile == true
                                     ? state.medicalFile!.name
-                                    : '🗂️ Upload files',
+                                    : context.strings.uploadFiles,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
@@ -1220,7 +1229,7 @@ class Step3MedicalDetails extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            "Was this vaccine given?",
+            context.strings.wasVaccineGiven,
             style: TextStyle(color: context.appMutedText),
           ),
           const SizedBox(height: 5),
@@ -1228,8 +1237,8 @@ class Step3MedicalDetails extends StatelessWidget {
           const SizedBox(height: 10),
 
           AppTextField(
-            label: 'Vaccinated on (Optional)',
-            hint: "Enter vaccination date",
+            label: context.strings.vaccinatedOnOptional,
+            hint: context.strings.enterVaccinationDate,
             readOnly: true,
             value: vaccine.vaccinationDate ?? "",
             suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded),
@@ -1261,7 +1270,7 @@ class Step3MedicalDetails extends StatelessWidget {
 
           const SizedBox(height: 5),
           Text(
-            "You can skip this if you don't remember the exact date.",
+            context.strings.vaccinationDateHint,
             style: TextStyle(fontSize: 11, color: context.appMutedText),
           ),
           const SizedBox(height: 10),
@@ -1278,9 +1287,9 @@ class Step3MedicalDetails extends StatelessWidget {
   ) {
     return Row(
       children: [
-        _spayedButton("YES", context, state, index, vaccine),
+        _spayedButton(context.strings.yesShort, context, state, index, vaccine),
         const SizedBox(width: 15),
-        _spayedButton("NO", context, state, index, vaccine),
+        _spayedButton(context.strings.noShort, context, state, index, vaccine),
       ],
     );
   }

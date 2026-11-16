@@ -7,27 +7,26 @@ class ThemeNotifier extends ChangeNotifier {
   bool get isDark => _mode == ThemeMode.dark;
 
   void setSystem() {
-    _mode = ThemeMode.system;
-    notifyListeners();
+    setMode(ThemeMode.system);
   }
 
   void setLight() {
-    _mode = ThemeMode.light;
-    notifyListeners();
+    setMode(ThemeMode.light);
   }
 
   void setDark() {
-    _mode = ThemeMode.dark;
-    notifyListeners();
+    setMode(ThemeMode.dark);
   }
 
   void setMode(ThemeMode mode) {
+    if (_mode == mode) return;
     _mode = mode;
-    notifyListeners();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
   }
 
   void toggle() {
-    _mode = (_mode == ThemeMode.dark) ? ThemeMode.light : ThemeMode.dark;
-    notifyListeners();
+    setMode(_mode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark);
   }
 }

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vetnow_user/core/di/service_locator.dart';
+import 'package:vetnow_user/core/localization/app_strings.dart';
+import 'package:vetnow_user/core/storage/secure_storage_service.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/ownerProfile/owner_profile_bloc.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/ownerProfile/owner_profile_event.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/ownerProfile/owner_profile_state.dart';
@@ -32,13 +35,8 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
   @override
   void initState() {
     super.initState();
-    //_loadCountries();
+    SecureStorageService().saveOnboardingStage('CREATE_PROFILE');
   }
-
-  // void _loadCountries() async {
-  //   final list = await _addressService.getCountries();
-  //   setState(() => countries = list);
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +47,10 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
             previous.isLoading != current.isLoading ||
             previous.ownerProfileEntity != current.ownerProfileEntity ||
             previous.error != current.error,
-        listener: (context, state) {
+        listener: (context, state) async {
           if (!state.isLoading && state.ownerProfileEntity != null) {
+            await SecureStorageService().saveOnboardingStage('ADD_PET');
+            if (!context.mounted) return;
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (_) => const MainFlowController()),
             );
@@ -58,38 +58,49 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
         },
         child: BlocBuilder<OwnerProfileBloc, OwnerProfileState>(
           builder: (context, state) {
-            return Scaffold(
-              body: SafeArea(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24.0,
-                    vertical: 10.0,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 1. Back Button
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
-                          shape: BoxShape.circle,
-                        ),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.arrow_back_ios_new, 
-                            size: 18,
-                            color: Theme.of(context).colorScheme.onSurface,
+            return PopScope(
+              canPop: Navigator.of(context).canPop(),
+              onPopInvokedWithResult: (didPop, result) {
+                if (!didPop) {
+                  SystemNavigator.pop();
+                }
+              },
+              child: Scaffold(
+                body: SafeArea(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24.0,
+                      vertical: 10.0,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 1. Back Button
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey.shade300),
+                            shape: BoxShape.circle,
                           ),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.arrow_back_ios_new, 
+                              size: 18,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                            onPressed: () {
+                              if (Navigator.of(context).canPop()) {
+                                Navigator.of(context).pop();
+                              } else {
+                                SystemNavigator.pop();
+                              }
+                            },
+                          ),
                         ),
-                      ),
                       const SizedBox(height: 24),
 
                       // 2. Title & Subtitle
                       Text(
-                        "Create Your Profile",
+                        context.strings.createYourProfile,
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
@@ -98,7 +109,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        "Your details help us personalize care for your pets.",
+                        context.strings.createProfileSubtitle,
                         style: TextStyle(
                           fontSize: 16,
                           color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
@@ -108,8 +119,8 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                       const SizedBox(height: 32),
 
                       AppTextField(
-                        label: 'First Name',
-                        hint: "Enter your first name",
+                        label: context.strings.firstName,
+                        hint: context.strings.enterYourFirstName,
                         keyboardType: TextInputType.emailAddress,
                         value: state.firstName,
                         onChanged: (value) {
@@ -118,7 +129,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                           );
                         },
                         validator: (v) {
-                          if (v == null || v.isEmpty) return 'Required';
+                          if (v == null || v.isEmpty) return context.strings.required;
                           return null;
                         },
                       ),
@@ -126,8 +137,8 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                       const SizedBox(height: 20),
 
                       AppTextField(
-                        label: 'Last Name',
-                        hint: "Enter your last name",
+                        label: context.strings.lastName,
+                        hint: context.strings.enterYourLastName,
                         keyboardType: TextInputType.emailAddress,
                         value: state.lastName,
                         onChanged: (value) {
@@ -136,7 +147,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                           );
                         },
                         validator: (v) {
-                          if (v == null || v.isEmpty) return 'Required';
+                          if (v == null || v.isEmpty) return context.strings.required;
                           return null;
                         },
                       ),
@@ -144,8 +155,8 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                       const SizedBox(height: 20),
 
                       AppTextField(
-                        label: 'Email Address',
-                        hint: "Enter your email address",
+                        label: context.strings.email,
+                        hint: context.strings.enterYourEmailAddress,
                         keyboardType: TextInputType.emailAddress,
                         value: state.email,
                         onChanged: (value) {
@@ -154,8 +165,8 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                           );
                         },
                         validator: (v) {
-                          if (v == null || v.isEmpty) return 'Required';
-                          if (!v.contains('@')) return 'Invalid email';
+                          if (v == null || v.isEmpty) return context.strings.required;
+                          if (!v.contains('@')) return context.strings.invalidEmail;
                           return null;
                         },
                       ),
@@ -164,8 +175,8 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
 
                       AppTextField(
                         key: ValueKey("${state.city}-${state.state}"),
-                        label: 'Location / Address',
-                        hint: "Tap to search your location",
+                        label: context.strings.locationAddress,
+                        hint: context.strings.tapToSearchLocation,
                         readOnly: true,
                         // Prevents keyboard from opening
                         value: state.country.isNotEmpty
@@ -212,7 +223,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                       const SizedBox(height: 40),
 
                       AppButton(
-                        text: "Continue",
+                        text: context.strings.continueText,
                         textColor: state.isFormValid && !state.isLoading
                             ? Colors.white
                             : Colors.grey,
@@ -231,7 +242,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                                 }
                               : ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text("Please enter valid details"),
+                                    content: Text(context.strings.pleaseEnterValidDetails),
                                   ),
                                 );
                         },
@@ -242,7 +253,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                   ),
                 ),
               ),
-            );
+            ));
           },
         ),
       ),

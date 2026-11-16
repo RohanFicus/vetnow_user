@@ -324,7 +324,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           vaccineId: event.vaccine.id,
           vaccineCode: event.vaccine.code,
           vaccinationDate: event.vaccine.vaccinationDate,
-          status: "No",
+          status: "NO",
         ),
       );
     }

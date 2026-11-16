@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:vetnow_user/core/localization/app_strings.dart';
 import 'package:vetnow_user/core/theme/app_theme_colors.dart';
 
-import './create_profile_screen.dart';
+import './medical_consent_screen.dart';
 
 class OnBoardingScreen extends StatefulWidget {
   const OnBoardingScreen({super.key});
@@ -14,48 +15,46 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   final PageController _controller = PageController();
   int _currentIndex = 0;
 
-  // Data for the 3 screens
-  final List<Map<String, String>> _pages = [
+  List<Map<String, String>> _getPages(BuildContext context) => [
     {
       "image":
           "https://images.unsplash.com/photo-1623387641168-d9803ddd3f35?q=80&w=1000&auto=format&fit=crop", // Dog & Cat
-      "title": "Happy pets.\nHappy you.",
-      "desc":
-          "Stay on top of your pet’s health with reminders, care tips, and easy access to vet support.",
+      "title": context.strings.onboardingTitle1,
+      "desc": context.strings.onboardingDesc1,
     },
     {
       "image":
           "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=1000&auto=format&fit=crop", // Dog & Owner
-      "title": "Everything in\none place",
-      "desc":
-          "Store vaccination records, medical files, and daily health logs. All securely organized.",
+      "title": context.strings.onboardingTitle2,
+      "desc": context.strings.onboardingDesc2,
     },
     {
       "image":
           "https://images.unsplash.com/photo-1552053831-71594a27632d?q=80&w=1000&auto=format&fit=crop", // Older person with pet
-      "title": "Care when it\nmatters",
-      "desc":
-          "Book appointments, track symptoms, and reach help on time. Because they rely on you.",
+      "title": context.strings.onboardingTitle3,
+      "desc": context.strings.onboardingDesc3,
     },
   ];
 
-  void _nextPage() {
-    if (_currentIndex < _pages.length - 1) {
+  void _nextPage(int pageCount) {
+    if (_currentIndex < pageCount - 1) {
       _controller.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
     } else {
-      // Navigate to Login/Home
+      // Navigate to Medical Consent
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const CreateProfileScreen()),
+        MaterialPageRoute(builder: (_) => const MedicalConsentScreen()),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final pages = _getPages(context);
+
     return Scaffold(
       body: Stack(
         children: [
@@ -70,12 +69,12 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                       _currentIndex = index;
                     });
                   },
-                  itemCount: _pages.length,
+                  itemCount: pages.length,
                   itemBuilder: (context, index) {
                     return OnboardingContent(
-                      image: _pages[index]["image"]!,
-                      title: _pages[index]["title"]!,
-                      desc: _pages[index]["desc"]!,
+                      image: pages[index]["image"]!,
+                      title: pages[index]["title"]!,
+                      desc: pages[index]["desc"]!,
                     );
                   },
                 ),
@@ -90,10 +89,10 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           Positioned(
             top: 50,
             right: 20,
-            child: _currentIndex != _pages.length - 1
+            child: _currentIndex != pages.length - 1
                 ? TextButton(
                     onPressed: () {
-                      _controller.jumpToPage(_pages.length - 1);
+                      _controller.jumpToPage(pages.length - 1);
                     },
                     style: TextButton.styleFrom(
                       backgroundColor: Colors.black.withOpacity(0.1),
@@ -105,9 +104,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                         vertical: 8,
                       ),
                     ),
-                    child: const Text(
-                      "Skip",
-                      style: TextStyle(
+                    child: Text(
+                      context.strings.skip,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                       ),
@@ -131,7 +130,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
-                      _pages.length,
+                      pages.length,
                       (index) => buildDot(index, context),
                     ),
                   ),
@@ -142,7 +141,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
-                      onPressed: _nextPage,
+                      onPressed: () => _nextPage(pages.length),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF0061CE), // Brand Blue
                         foregroundColor: Colors.white,
@@ -152,9 +151,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                         ),
                       ),
                       child: Text(
-                        _currentIndex == _pages.length - 1
-                            ? "Get Started"
-                            : "Next",
+                        _currentIndex == pages.length - 1
+                            ? context.strings.getStarted
+                            : context.strings.next,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,

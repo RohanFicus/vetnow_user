@@ -29,6 +29,20 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     on<FetchSymptomsEvent>(_onFetchSymptoms);
     on<FetchAvailableSlotsEvent>(_onFetchAvailableSlots);
     on<FetchAllSpeciesEvent>(_onFetchAllSpecies);
+    on<ResetBookingStateEvent>(_onResetBookingState);
+  }
+
+  void _onResetBookingState(
+    ResetBookingStateEvent event,
+    Emitter<DashboardState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        bookingSuccess: false,
+        paymentSuccess: false,
+        error: null,
+      ),
+    );
   }
 
   Future<void> _onFetchAllSpecies(

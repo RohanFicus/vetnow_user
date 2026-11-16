@@ -10,6 +10,7 @@ class AppointmentRequest {
   final String notes;
   final String symptomIds;
   final File? attachments;
+  final bool consentAccepted;
 
   AppointmentRequest({
     required this.doctorId,
@@ -21,6 +22,7 @@ class AppointmentRequest {
     required this.notes,
     required this.symptomIds,
     this.attachments,
+    this.consentAccepted = true,
   });
 
   Map<String, dynamic> toJson() {
@@ -33,6 +35,7 @@ class AppointmentRequest {
       'consultationType': consultationType,
       'notes': notes,
       'symptomIds': symptomIds,
+      'consentAccepted': consentAccepted,
     };
   }
 }

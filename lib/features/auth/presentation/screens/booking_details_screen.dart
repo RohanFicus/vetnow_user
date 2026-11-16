@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:vetnow_user/core/localization/app_strings.dart';
 import 'package:vetnow_user/core/theme/app_theme_colors.dart';
+import 'package:vetnow_user/core/utils/doctor_utils.dart';
 import 'package:vetnow_user/core/utils/pet_utils.dart';
 import 'package:vetnow_user/features/auth/data/models/dashboard_response_model.dart';
 
@@ -45,7 +47,7 @@ class BookingDetailsScreen extends StatelessWidget {
           ),
         ),
         title: Text(
-          "Booking Details",
+          context.strings.bookingDetails,
           style: TextStyle(
             color: context.appText,
             fontSize: 18,
@@ -86,7 +88,7 @@ class BookingDetailsScreen extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    "Booking ${status.replaceAll('_', ' ')}",
+                    _getLocalizedBookingStatus(context, status),
                     style: TextStyle(
                       color: isConfirmed ? const Color(0xFF00692C) : isCancelled ? Colors.red.shade900 : Colors.orange.shade900,
                       fontWeight: FontWeight.w600,
@@ -99,7 +101,7 @@ class BookingDetailsScreen extends StatelessWidget {
 
             // Pet Information
             Text(
-              "Pet Information",
+              context.strings.petInformation,
               style: TextStyle(color: context.appMutedText, fontSize: 12),
             ),
             const SizedBox(height: 8),
@@ -125,7 +127,7 @@ class BookingDetailsScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          appointment.pet?.name ?? "Unnamed Pet",
+                          appointment.pet?.name ?? context.strings.unnamedPetTag,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -134,7 +136,7 @@ class BookingDetailsScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "${appointment.pet?.breedName ?? 'N/A'} • ${appointment.pet?.speciesName ?? 'N/A'}",
+                          "${appointment.pet?.breedName ?? context.strings.unknownBreed} • ${appointment.pet?.speciesName ?? context.strings.species}",
                           style: TextStyle(color: context.appMutedText, fontSize: 12),
                         ),
                       ],
@@ -147,7 +149,7 @@ class BookingDetailsScreen extends StatelessWidget {
 
             // Appointment Details
             Text(
-              "Appointment Details",
+              context.strings.appointmentDetailsHeader,
               style: TextStyle(color: context.appMutedText, fontSize: 12),
             ),
             const SizedBox(height: 8),
@@ -165,10 +167,8 @@ class BookingDetailsScreen extends StatelessWidget {
                     icon: Icons.calendar_today,
                     iconColor: Colors.blue,
                     iconBg: const Color(0xFFE3F2FD),
-                    label: "Date",
-                    value: appointmentDate != null 
-                        ? DateFormat('MMMM dd, yyyy').format(appointmentDate)
-                        : appointment.appointmentDate ?? "N/A",
+                    label: context.strings.dateLabel,
+                    value: _formatDate(context, appointmentDate, appointment.appointmentDate),
                   ),
                   Divider(height: 32, color: context.appBorder),
                   _buildDetailRow(
@@ -176,7 +176,7 @@ class BookingDetailsScreen extends StatelessWidget {
                     icon: Icons.access_time,
                     iconColor: Colors.purple,
                     iconBg: const Color(0xFFF3E5F5),
-                    label: "Time",
+                    label: context.strings.timeLabel,
                     value: appointment.appointmentTime ?? "N/A",
                   ),
                   Divider(height: 32, color: context.appBorder),
@@ -185,9 +185,11 @@ class BookingDetailsScreen extends StatelessWidget {
                     icon: Icons.person_outline,
                     iconColor: Colors.green,
                     iconBg: const Color(0xFFE8F5E9),
-                    label: "Doctor",
-                    value: appointment.doctor?.fullName ?? "N/A",
-                    subValue: "Veterinarian Specialist",
+                    label: context.strings.doctorLabel,
+                    value: DoctorUtils.formatDoctorName(
+                      appointment.doctor?.fullName,
+                    ),
+                    subValue: context.strings.veterinarianSpecialist,
                   ),
                   const SizedBox(height: 24),
 
@@ -203,7 +205,7 @@ class BookingDetailsScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Booking ID",
+                          context.strings.bookingId,
                           style: TextStyle(fontSize: 12, color: context.appMutedText),
                         ),
                         const SizedBox(height: 4),
@@ -227,7 +229,7 @@ class BookingDetailsScreen extends StatelessWidget {
             // Reported Symptoms
             if (appointment.notes != null && appointment.notes!.isNotEmpty) ...[
               Text(
-                "Reason for Visit",
+                context.strings.reasonForVisit,
                 style: TextStyle(color: context.appMutedText, fontSize: 12),
               ),
               const SizedBox(height: 8),
@@ -243,6 +245,55 @@ class BookingDetailsScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _getLocalizedBookingStatus(BuildContext context, String status) {
+    String statusText;
+    switch (status.toUpperCase()) {
+      case 'PENDING_PAYMENT':
+      case 'PENDING':
+        statusText = context.strings.statusPending;
+        break;
+      case 'CONFIRMED':
+        statusText = context.strings.statusConfirmed;
+        break;
+      case 'READY_TO_CONNECT':
+      case 'READY TO CONNECT':
+        statusText = context.strings.statusReadyToConnect;
+        break;
+      case 'IN_PROGRESS':
+      case 'IN PROGRESS':
+        statusText = context.strings.statusInProgress;
+        break;
+      case 'CANCELLED':
+        statusText = context.strings.statusCancelled;
+        break;
+      case 'COMPLETED':
+        statusText = context.strings.statusCompleted;
+        break;
+      default:
+        statusText = status.replaceAll('_', ' ');
+    }
+    final isHindi = context.strings.languageCode == 'hi' || AppStrings.currentLanguage == 'hi';
+    if (isHindi) {
+      return "बुकिंग $statusText";
+    }
+    return "Booking $statusText";
+  }
+
+  String _formatDate(BuildContext context, DateTime? date, String? rawDate) {
+    if (date == null) return rawDate ?? "N/A";
+    const enMonths = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    const hiMonths = [
+      "जनवरी", "फ़रवरी", "मार्च", "अप्रैल", "मई", "जून",
+      "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"
+    ];
+    final isHindi = context.strings.languageCode == 'hi' || AppStrings.currentLanguage == 'hi';
+    final monthName = isHindi ? hiMonths[date.month - 1] : enMonths[date.month - 1];
+    return "$monthName ${date.day}, ${date.year}";
   }
 
   Widget _buildDetailRow(

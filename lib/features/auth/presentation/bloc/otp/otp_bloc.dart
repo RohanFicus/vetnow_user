@@ -71,6 +71,18 @@ class OtpBloc extends Bloc<OtpEvent, OtpState> {
       );
       storageService.saveCustomerProfileJson(ownerProfileEntity.toJson());
 
+      final hasPets = result.data?.pets?.isNotEmpty == true;
+      final hasProfile = result.data?.user?.firstName?.isNotEmpty == true &&
+          result.data?.user?.email?.isNotEmpty == true;
+
+      if (hasPets) {
+        await storageService.saveOnboardingStage('COMPLETED');
+      } else if (hasProfile) {
+        await storageService.saveOnboardingStage('ADD_PET');
+      } else {
+        await storageService.saveOnboardingStage('CONSENT');
+      }
+
       emit(state.copyWith(isLoading: false, otpVerifyEntity: result.data));
     } catch (e) {
       print("Error===>${e.toString()}");

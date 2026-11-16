@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pinput/pinput.dart';
 import 'package:vetnow_user/core/di/service_locator.dart';
+import 'package:vetnow_user/core/localization/app_strings.dart';
 import 'package:vetnow_user/features/auth/presentation/screens/dashboard_screen.dart';
 import 'package:vetnow_user/features/auth/presentation/screens/main_flow_controller.dart';
 
@@ -62,19 +63,23 @@ class OtpScreen extends StatelessWidget {
 
           if (!state.isLoading && state.isComplete && entity != null) {
             final hasPets = entity.pets?.isNotEmpty == true;
-            final hasEmailEmpty = entity.user?.email?.isEmpty == true;
+            final hasProfile = entity.user?.firstName?.isNotEmpty == true &&
+                entity.user?.email?.isNotEmpty == true;
 
             if (hasPets) {
-              Navigator.of(context).pushReplacement(
+              Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (_) => const MainDashboard()),
+                (route) => false,
               );
-            } else if (hasEmailEmpty) {
-              Navigator.of(context).pushReplacement(
+            } else if (hasProfile) {
+              Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (_) => const MainFlowController()),
+                (route) => false,
               );
             } else {
-              Navigator.of(context).pushReplacement(
+              Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (_) => const OnBoardingScreen()),
+                (route) => false,
               );
             }
           }
@@ -114,7 +119,7 @@ class OtpScreen extends StatelessWidget {
 
                       // 2. Title
                       Text(
-                        "Enter the OTP",
+                        context.strings.enterTheOtp,
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
@@ -126,7 +131,7 @@ class OtpScreen extends StatelessWidget {
                       // 3. Subtitle with Bold Phone Number
                       RichText(
                         text: TextSpan(
-                          text: "we sent a verification code on your number\n",
+                          text: context.strings.weSentVerificationCode,
                           style: const TextStyle(
                             fontSize: 16,
                             color: Colors.grey,
@@ -187,18 +192,18 @@ class OtpScreen extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            "Did not get the OTP? ",
-                            style: TextStyle(color: Colors.grey, fontSize: 15),
+                          Text(
+                            context.strings.didNotGetOtp,
+                            style: const TextStyle(color: Colors.grey, fontSize: 15),
                           ),
                           GestureDetector(
                             onTap: () {
                               pinController.clear();
                               context.read<OtpBloc>().add(OtpResendRequested());
                             },
-                            child: const Text(
-                              "Resend",
-                              style: TextStyle(
+                            child: Text(
+                              context.strings.resendOtp,
+                              style: const TextStyle(
                                 color: Colors.blue,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 15,
@@ -211,7 +216,7 @@ class OtpScreen extends StatelessWidget {
 
                       // 6. The "Verify" Button
                       AppButton(
-                        text: state.isLoading ? "Verifying..." : "Verify",
+                        text: state.isLoading ? context.strings.verifying : context.strings.verify,
                         color: state.isComplete
                             ? AppColors.primary
                             : Colors.grey,

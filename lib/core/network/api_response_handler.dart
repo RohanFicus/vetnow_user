@@ -25,14 +25,14 @@ class ApiResponseHandler {
       return apiResponse;
     }
 
-    // HTTP client error (400–499)
-    String message = 'Bad Request';
+    // HTTP error (400–599)
+    String message = statusCode >= 500 ? 'Internal server error' : 'Bad Request';
     if (response.data is Map<String, dynamic>) {
       final data = response.data as Map<String, dynamic>;
       if (data['error'] != null && data['error']['message'] != null) {
-        message = data['error']['message'];
-      } else {
-        message = data['message'] ?? 'Bad Request';
+        message = data['error']['message'].toString();
+      } else if (data['message'] != null) {
+        message = data['message'].toString();
       }
     }
 

@@ -7,6 +7,9 @@ import 'package:vetnow_user/features/auth/presentation/bloc/ownerProfile/owner_p
 import 'package:vetnow_user/features/auth/presentation/bloc/ownerProfile/owner_profile_state.dart';
 import 'package:vetnow_user/features/auth/presentation/screens/sign_in_screen.dart';
 
+import 'package:vetnow_user/core/utils/doctor_utils.dart';
+import '../../../../core/localization/app_language_notifier.dart';
+import '../../../../core/localization/app_strings.dart';
 import '../../../../core/theme/app_color.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/theme/theme_notifier.dart';
@@ -43,7 +46,6 @@ class SettingsScreen extends StatelessWidget {
         },
         child: BlocBuilder<OwnerProfileBloc, OwnerProfileState>(
           builder: (context, state) {
-            final themeNotifier = context.watch<ThemeNotifier>();
             return Scaffold(
               backgroundColor: context.appBackground,
               appBar: AppBar(
@@ -58,7 +60,7 @@ class SettingsScreen extends StatelessWidget {
                   onPressed: () => Navigator.pop(context),
                 ),
                 title: Text(
-                  "Settings",
+                  context.strings.settings,
                   style: TextStyle(
                     color: context.appText,
                     fontWeight: FontWeight.bold,
@@ -67,13 +69,13 @@ class SettingsScreen extends StatelessWidget {
                 centerTitle: true,
               ),
               body: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(18),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // 1. Profile Card (Gradient)
                     Container(
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [
@@ -203,25 +205,25 @@ class SettingsScreen extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 20),
 
                     // 2. General Section
-                    const Text(
-                      "General",
-                      style: TextStyle(
+                    Text(
+                      context.strings.generalSection,
+                      style: const TextStyle(
                         color: Colors.grey,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
                     _buildSettingsTile(
                       context,
                       icon: Icons.pets,
                       color: Colors.purple.shade50,
                       iconColor: Colors.purple,
-                      title: "My Pets",
-                      subtitle: "Manage all your furry friends",
+                      title: context.strings.myPets,
+                      subtitle: context.strings.myPetsSubtitle,
                       onTap: () {
                         Navigator.push(
                           context,
@@ -231,32 +233,15 @@ class SettingsScreen extends StatelessWidget {
                         );
                       },
                     ),
-                    /*   _buildSettingsTile(
-                      context,
-                      icon: Icons.history,
-                      color: Colors.green.shade50,
-                      iconColor: Colors.green,
-                      title: "Booking History",
-                      subtitle: "All your past appointments",
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (c) => const BookingsScreen(
-                              initialTab: 1,
-                              standalone: true,
-                            ),
-                          ),
-                        );
-                      },
-                    ),*/
                     _buildSettingsTile(
                       context,
                       icon: Icons.medical_services_outlined,
                       color: Colors.blue.shade50,
                       iconColor: Colors.blue,
-                      title: state.doctorProfile?.fullName ?? '..',
-                      subtitle: "Meet Your Veterinarian",
+                      title: DoctorUtils.formatDoctorName(
+                        state.doctorProfile?.fullName,
+                      ),
+                      subtitle: context.strings.meetYourVeterinarian,
                       onTap: () {
                         Navigator.push(
                           context,
@@ -267,25 +252,25 @@ class SettingsScreen extends StatelessWidget {
                       },
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 8),
 
                     // 3. Preferences Section
-                    const Text(
-                      "Preferences",
-                      style: TextStyle(
+                    Text(
+                      context.strings.preferencesSection,
+                      style: const TextStyle(
                         color: Colors.grey,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
                     _buildSettingsTile(
                       context,
                       trailing: Switch(
                         value: context.isDarkMode,
                         activeThumbColor: AppColors.primary,
                         onChanged: (value) {
-                          themeNotifier.setMode(
+                          context.read<ThemeNotifier>().setMode(
                             value ? ThemeMode.dark : ThemeMode.light,
                           );
                         },
@@ -295,31 +280,31 @@ class SettingsScreen extends StatelessWidget {
                           : Icons.light_mode,
                       color: Colors.indigo.shade50,
                       iconColor: Colors.indigo,
-                      title: "Dark Mode",
-                      subtitle: "Switch app appearance",
+                      title: context.strings.darkMode,
+                      subtitle: context.strings.darkModeSubtitle,
                       onTap: () {
-                        themeNotifier.setMode(
+                        context.read<ThemeNotifier>().setMode(
                           context.isDarkMode ? ThemeMode.light : ThemeMode.dark,
                         );
                       },
                     ),
-                    // _buildSettingsTile(
-                    //   context,
-                    //   icon: Icons.notifications_none,
-                    //   color: Colors.indigo.shade50,
-                    //   iconColor: Colors.indigo,
-                    //   title: "Notifications",
-                    //   subtitle: "Manage notification preferences",
-                    //   onTap: () {},
-                    // ),
-                    // Added these to trigger the dialogs shown in your design
+                    _buildSettingsTile(
+                      context,
+                      icon: Icons.translate,
+                      color: Colors.teal.shade50,
+                      iconColor: Colors.teal,
+                      title: context.strings.language,
+                      subtitle: context.watch<LanguageNotifier>().currentLanguageName,
+                      trailing: _buildLanguageToggleButton(context),
+                      onTap: () => _showLanguageDialog(context),
+                    ),
                     _buildSettingsTile(
                       context,
                       icon: Icons.person_remove_outlined,
                       color: Colors.red.shade50,
                       iconColor: Colors.red,
-                      title: "Delete Account",
-                      subtitle: "Permanently delete your account",
+                      title: context.strings.deleteAccount,
+                      subtitle: context.strings.deleteAccountSubtitle,
                       onTap: () => _showDeleteDialog(context),
                     ),
                     _buildSettingsTile(
@@ -327,11 +312,11 @@ class SettingsScreen extends StatelessWidget {
                       icon: Icons.logout,
                       color: Colors.grey.shade100,
                       iconColor: Colors.grey.shade700,
-                      title: "Logout",
-                      subtitle: "Sign out of your account",
+                      title: context.strings.logout,
+                      subtitle: context.strings.logoutSubtitle,
                       onTap: () => _showLogoutDialog(context),
                     ),
-                    const SizedBox(height: 80), // Bottom padding
+                    const SizedBox(height: 60), // Bottom padding
                   ],
                 ),
               ),
@@ -353,7 +338,7 @@ class SettingsScreen extends StatelessWidget {
     Widget? trailing,
   }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: context.appSurface,
         borderRadius: BorderRadius.circular(16),
@@ -396,94 +381,280 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildLanguageToggleButton(BuildContext context) {
+    final languageNotifier = context.watch<LanguageNotifier>();
+    final isHindi = languageNotifier.isHindi;
+
+    return Container(
+      height: 36,
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: context.isDarkMode
+            ? context.appSurfaceVariant
+            : Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: context.appBorder,
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildLanguageOption(
+            context: context,
+            title: "English",
+            isSelected: !isHindi,
+            onTap: () => context.read<LanguageNotifier>().setLanguage('en'),
+          ),
+          _buildLanguageOption(
+            context: context,
+            title: "हिन्दी",
+            isSelected: isHindi,
+            onTap: () => context.read<LanguageNotifier>().setLanguage('hi'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLanguageOption({
+    required BuildContext context,
+    required String title,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
+        ),
+        child: Center(
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: isSelected ? Colors.white : context.appMutedText,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   // --- DIALOGS ---
 
-  void _showDeleteDialog(BuildContext context) {
-    showDialog(
+  void _showLanguageDialog(BuildContext context) {
+    final languageNotifier = context.read<LanguageNotifier>();
+    showModalBottomSheet(
       context: context,
-      builder: (context) => Dialog(
-        backgroundColor: context.appSurface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.red.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.red.withValues(alpha: 0.2),
-                      blurRadius: 20,
+      backgroundColor: context.appSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (bottomSheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      context.strings.selectLanguage,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: context.appText,
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close, color: context.appMutedText),
+                      onPressed: () => Navigator.pop(bottomSheetContext),
                     ),
                   ],
                 ),
-                child: const Icon(
-                  Icons.delete_outline,
-                  color: Colors.red,
-                  size: 32,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                "Delete Account?",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: context.appText,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                "Are you sure you want to delete your account? This will permanently remove all your data including pet profiles, appointments, and activities. This action cannot be undone.",
-                textAlign: TextAlign.center,
-                style: TextStyle(color: context.appMutedText, height: 1.5),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        side: BorderSide(color: context.appBorder),
+                const SizedBox(height: 16),
+                ...LanguageNotifier.supportedLanguages.map((lang) {
+                  final isSelected =
+                      languageNotifier.currentLanguageCode == lang.code;
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? context.appSoftPrimary
+                          : context.appSurfaceVariant,
+                      border: Border.all(
+                        color: isSelected
+                            ? AppColors.primary
+                            : context.appBorder,
+                        width: isSelected ? 1.5 : 1.0,
                       ),
-                      child: Text(
-                        "Cancel",
-                        style: TextStyle(color: context.appText),
-                      ),
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        context.read<OwnerProfileBloc>().add(DeleteAccount());
-                        Navigator.pop(context);
+                    child: ListTile(
+                      onTap: () {
+                        languageNotifier.setLanguage(lang.code);
+                        Navigator.pop(bottomSheetContext);
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? AppColors.primary.withValues(alpha: 0.1)
+                              : Colors.transparent,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.translate,
+                          color: isSelected
+                              ? AppColors.primary
+                              : context.appMutedText,
+                          size: 20,
                         ),
                       ),
-                      child: const Text(
-                        "Delete Account",
-                        style: TextStyle(color: Colors.white),
+                      title: Text(
+                        lang.nativeName,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: isSelected
+                              ? AppColors.primary
+                              : context.appText,
+                        ),
+                      ),
+                      subtitle: Text(
+                        lang.englishName,
+                        style: TextStyle(
+                          color: context.appMutedText,
+                          fontSize: 12,
+                        ),
+                      ),
+                      trailing: isSelected
+                          ? const Icon(
+                              Icons.check_circle,
+                              color: AppColors.primary,
+                            )
+                          : null,
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showDeleteDialog(BuildContext context) {
+    final ownerProfileBloc = context.read<OwnerProfileBloc>();
+    showDialog(
+      context: context,
+      builder: (dialogContext) => BlocProvider.value(
+        value: ownerProfileBloc,
+        child: Dialog(
+          backgroundColor: dialogContext.appSurface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.red.withValues(alpha: 0.2),
+                        blurRadius: 20,
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.delete_outline,
+                    color: Colors.red,
+                    size: 32,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  context.strings.deleteAccountQuestion,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: dialogContext.appText,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  context.strings.deleteAccountWarning,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: dialogContext.appMutedText, height: 1.5),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(dialogContext),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          side: BorderSide(color: dialogContext.appBorder),
+                        ),
+                        child: Text(
+                          context.strings.cancel,
+                          style: TextStyle(color: dialogContext.appText),
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          ownerProfileBloc.add(DeleteAccount());
+                          Navigator.pop(dialogContext);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          context.strings.deleteAccount,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -497,7 +668,7 @@ class SettingsScreen extends StatelessWidget {
       builder: (dialogContext) => BlocProvider.value(
         value: ownerProfileBloc,
         child: Dialog(
-          backgroundColor: context.appSurface,
+          backgroundColor: dialogContext.appSurface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -532,18 +703,18 @@ class SettingsScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
-                      "Logout?",
-                      style: TextStyle(
+                    Text(
+                      context.strings.logoutQuestion,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      "Are you sure you want to sign out?",
-                      style: TextStyle(color: Colors.white70),
+                    Text(
+                      context.strings.logoutConfirmQuestion,
+                      style: const TextStyle(color: Colors.white70),
                     ),
                   ],
                 ),
@@ -562,7 +733,7 @@ class SettingsScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "You'll be signed out of VetNow",
+                            context.strings.signedOutOfVetNow,
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               color: context.appText,
@@ -571,15 +742,15 @@ class SettingsScreen extends StatelessWidget {
                           const SizedBox(height: 8),
                           _buildBulletPoint(
                             context,
-                            "Your data will be saved securely",
+                            context.strings.logoutBullet1,
                           ),
                           _buildBulletPoint(
                             context,
-                            "You can sign back in anytime",
+                            context.strings.logoutBullet2,
                           ),
                           _buildBulletPoint(
                             context,
-                            "Upcoming appointments remain scheduled",
+                            context.strings.logoutBullet3,
                           ),
                         ],
                       ),
@@ -589,7 +760,7 @@ class SettingsScreen extends StatelessWidget {
                       children: [
                         Expanded(
                           child: OutlinedButton(
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: () => Navigator.pop(dialogContext),
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(
@@ -598,7 +769,7 @@ class SettingsScreen extends StatelessWidget {
                               side: BorderSide(color: context.appBorder),
                             ),
                             child: Text(
-                              "Cancel",
+                              context.strings.cancel,
                               style: TextStyle(color: context.appText),
                             ),
                           ),
@@ -617,9 +788,9 @@ class SettingsScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            child: const Text(
-                              "Logout",
-                              style: TextStyle(color: Colors.white),
+                            child: Text(
+                              context.strings.logout,
+                              style: const TextStyle(color: Colors.white),
                             ),
                           ),
                         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vetnow_user/core/network/api_client.dart';
@@ -15,7 +16,7 @@ import '../../../../core/theme/app_color.dart';
 import 'package:vetnow_user/core/theme/app_theme_colors.dart';
 import '../components/AppButton.dart';
 
-class PetProfileSuccessScreen extends StatelessWidget {
+class PetProfileSuccessScreen extends StatefulWidget {
   final VoidCallback onAddAnother;
   final VoidCallback onDashboard;
 
@@ -26,23 +27,56 @@ class PetProfileSuccessScreen extends StatelessWidget {
   });
 
   @override
+  State<PetProfileSuccessScreen> createState() => _PetProfileSuccessScreenState();
+}
+
+class _PetProfileSuccessScreenState extends State<PetProfileSuccessScreen> {
+  DateTime? _lastBackPressTime;
+  final SecureStorageService _storageService = SecureStorageService();
+
+  @override
+  void initState() {
+    super.initState();
+    _storageService.saveOnboardingStage('PET_SUCCESS');
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => ProfileBloc(
-        ProfileUseCase(
-          ProfileRepositoryImpl(ProfileRemoteDataSourceImpl(ApiClient()), SecureStorageService()),
-        ),
-        SecureStorageService(),
-      )..add(ProfileCallLocally()),
-      child: BlocListener<ProfileBloc, ProfileState>(
-        listenWhen: (previous, current) => previous.petName != current.petName,
-        listener: (context, state) {
-          print("Step Success ${state.petName}");
-        },
-        child: BlocBuilder<ProfileBloc, ProfileState>(
-          builder: (context, state) {
-            return Scaffold(
-              backgroundColor: context.appBackground,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        final now = DateTime.now();
+        if (_lastBackPressTime == null ||
+            now.difference(_lastBackPressTime!) > const Duration(seconds: 2)) {
+          _lastBackPressTime = now;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Press back again to exit"),
+              duration: Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        } else {
+          SystemNavigator.pop();
+        }
+      },
+      child: BlocProvider(
+        create: (_) => ProfileBloc(
+          ProfileUseCase(
+            ProfileRepositoryImpl(ProfileRemoteDataSourceImpl(ApiClient()), SecureStorageService()),
+          ),
+          SecureStorageService(),
+        )..add(ProfileCallLocally()),
+        child: BlocListener<ProfileBloc, ProfileState>(
+          listenWhen: (previous, current) => previous.petName != current.petName,
+          listener: (context, state) {
+            print("Step Success ${state.petName}");
+          },
+          child: BlocBuilder<ProfileBloc, ProfileState>(
+            builder: (context, state) {
+              return Scaffold(
+                backgroundColor: context.appBackground,
               // appBar: AppBar(
               //   elevation: 0,
               //   backgroundColor: Colors.transparent,
@@ -107,7 +141,7 @@ class PetProfileSuccessScreen extends StatelessWidget {
           },
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildSuccessHeader(BuildContext context) {
@@ -339,13 +373,7 @@ class PetProfileSuccessScreen extends StatelessWidget {
           text: "Go to Dashboard",
           icon: Icons.dashboard,
           color: AppColors.primary,
-          onPressed: () {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (_) => MainDashboard()),
-                  (route) => false,
-            );
-          },
+          onPressed: widget.onDashboard,
         ),
         const SizedBox(height: 16),
         AppButton(
@@ -354,7 +382,7 @@ class PetProfileSuccessScreen extends StatelessWidget {
           color: context.isDarkMode ? Colors.transparent : Colors.white,
           textColor: AppColors.primary,
           side: BorderSide(color: AppColors.primary, width: 1.5),
-          onPressed: onAddAnother,
+          onPressed: widget.onAddAnother,
         ),
       ],
     );

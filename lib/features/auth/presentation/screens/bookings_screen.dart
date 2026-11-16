@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vetnow_user/core/localization/app_strings.dart';
 import 'package:vetnow_user/core/theme/app_color.dart';
 import 'package:vetnow_user/core/theme/app_theme_colors.dart';
 import 'package:vetnow_user/features/auth/presentation/bloc/dashboardProfile/dashboard_bloc.dart';
@@ -71,7 +72,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
           appBar: widget.standalone
               ? buildSimpleAppBar(
                   context,
-                  _selectedTab == 1 ? "Booking History" : "Appointments",
+                  _selectedTab == 1 ? context.strings.bookingHistory : context.strings.appointments,
                 )
               : null,
           body: SafeArea(
@@ -94,8 +95,8 @@ class _BookingsScreenState extends State<BookingsScreen> {
                         children: [
                           Text(
                             _selectedTab == 1
-                                ? "Booking History"
-                                : "Appointments",
+                                ? context.strings.bookingHistory
+                                : context.strings.appointments,
                             style: TextStyle(
                               color: context.appText,
                               fontSize: 24,
@@ -105,19 +106,14 @@ class _BookingsScreenState extends State<BookingsScreen> {
                           const SizedBox(height: 4),
                           Text(
                             _selectedTab == 1
-                                ? "All your past appointments"
-                                : "Review your pet's vet visit",
+                                ? context.strings.allPastAppointments
+                                : context.strings.reviewVetVisit,
                             style: TextStyle(color: context.appMutedText),
                           ),
                         ],
                       ),
                       Row(
                         children: [
-                          // CircleAvatar(
-                          //   backgroundColor: context.appSurface,
-                          //   child: Icon(Icons.tune, color: context.appMutedText),
-                          // ),
-                          // const SizedBox(width: 8),
                           GestureDetector(
                             onTap: () {
                               final bloc = context.read<DashboardBloc>();
@@ -150,8 +146,8 @@ class _BookingsScreenState extends State<BookingsScreen> {
                   ),
                   child: Row(
                     children: [
-                      Expanded(child: _buildTabButton("Upcoming", 0)),
-                      Expanded(child: _buildTabButton("Past Appointments", 1)),
+                      Expanded(child: _buildTabButton(context.strings.upcoming, 0)),
+                      Expanded(child: _buildTabButton(context.strings.pastAppointments, 1)),
                     ],
                   ),
                 ),
@@ -242,7 +238,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              "No appointments found",
+              context.strings.noAppointmentsFound,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
@@ -252,8 +248,8 @@ class _BookingsScreenState extends State<BookingsScreen> {
             const SizedBox(height: 12),
             Text(
               _selectedTab == 0
-                  ? "You don't have any upcoming appointments. Schedule a visit with a vet to get started."
-                  : "You haven't had any appointments yet. Your past medical visits will appear here.",
+                  ? context.strings.noUpcomingAppointmentsSubtitle
+                  : context.strings.noPastAppointmentsSubtitle,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: context.appMutedText,
@@ -266,7 +262,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
               SizedBox(
                 width: 200,
                 child: AppButton(
-                  text: "Book Appointment",
+                  text: context.strings.bookAppointment,
                   onPressed: () {
                     final bloc = context.read<DashboardBloc>();
                     Navigator.push(

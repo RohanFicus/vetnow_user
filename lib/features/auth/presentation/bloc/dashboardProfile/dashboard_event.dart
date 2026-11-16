@@ -134,3 +134,5 @@ class FetchAvailableSlotsEvent extends DashboardEvent {
 }
 
 class FetchAllSpeciesEvent extends DashboardEvent {}
+
+class ResetBookingStateEvent extends DashboardEvent {}

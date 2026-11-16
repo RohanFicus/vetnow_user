@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:vetnow_user/core/localization/app_strings.dart';
 import 'package:vetnow_user/core/theme/app_theme_colors.dart';
 import 'package:vetnow_user/core/utils/pet_utils.dart';
 import 'package:vetnow_user/features/auth/data/models/dashboard_response_model.dart';
@@ -93,6 +94,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           ).showSnackBar(SnackBar(content: Text(state.error!)));
         }
         if (state.bookingSuccess && _lastRequest != null) {
+          final req = _lastRequest;
+          _lastRequest = null;
           final dashboardBloc = context.read<DashboardBloc>();
           Navigator.push(
             context,
@@ -101,7 +104,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                 value: dashboardBloc,
                 child: PaymentSummaryScreen(
                   selectedTime: selectedTime!,
-                  appointmentRequest: _lastRequest,
+                  appointmentRequest: req,
                 ),
               ),
             ),
@@ -117,7 +120,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
 
         return Scaffold(
           backgroundColor: context.appBackground,
-          appBar: buildSimpleAppBar(context, "Book Appointment"),
+          appBar: buildSimpleAppBar(context, context.strings.bookAppointment),
           body: Column(
             children: [
               Expanded(
@@ -142,7 +145,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    _monthLabel(_selectedDate),
+                                    _monthLabel(_selectedDate, context),
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: context.appText,
@@ -269,7 +272,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                             MainAxisAlignment.center,
                                         children: [
                                           Text(
-                                            _weekdayLabel(date),
+                                            _weekdayLabel(date, context),
                                             style: TextStyle(
                                               color: isSelected
                                                   ? Colors.white
@@ -308,7 +311,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Select Timeslot",
+                              context.strings.selectTimeSlot,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -342,8 +345,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                 padding: const EdgeInsets.all(20),
                 child: AppButton(
                   text: state.isLoading
-                      ? "Please wait..."
-                      : "Proceed to Payment",
+                      ? context.strings.pleaseWait
+                      : context.strings.continueText,
                   textColor: _canProceed && !state.isLoading
                       ? Colors.white
                       : Colors.grey,
@@ -351,7 +354,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                       ? AppColors.primary
                       : Colors.grey.shade300,
                   onPressed: _canProceed && !state.isLoading
-                      ? () => _handleProceed(context, state)
+                      ? () => _showConsentBottomSheet(context, state)
                       : null,
                 ),
               ),
@@ -362,7 +365,22 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     );
   }
 
-  void _handleProceed(BuildContext context, DashboardState state) {
+  void _showConsentBottomSheet(BuildContext context, DashboardState state) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (modalContext) => TelemedicineConsentBottomSheet(
+        onAccept: () => _handleProceed(context, state, consentAccepted: true),
+      ),
+    );
+  }
+
+  void _handleProceed(
+    BuildContext context,
+    DashboardState state, {
+    bool consentAccepted = true,
+  }) {
     final doctorId =
         state.doctorAvailability?.doctorId ??
         state.doctorProfile?.doctorAvailabilityResponse?.doctorId ??
@@ -390,6 +408,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       attachments: _attachments.isNotEmpty
           ? File(_attachments.first.path!)
           : null,
+      consentAccepted: consentAccepted,
     );
 
     // Call the API
@@ -402,7 +421,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle("Symptoms", "Optional"),
+        _buildSectionTitle(context.strings.selectSymptoms, context.strings.optional),
         const SizedBox(height: 12),
         Wrap(
           spacing: 10,
@@ -434,7 +453,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                   border: Border.all(color: context.appBorder),
                 ),
                 child: Text(
-                  symptom.nameEn,
+                  _getLocalizedSymptomName(context, symptom.nameEn),
                   style: TextStyle(
                     color: isSelected ? Colors.white : context.appText,
                     fontWeight: FontWeight.w600,
@@ -453,7 +472,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle("Additional Notes", "Optional"),
+        _buildSectionTitle(context.strings.additionalNotes, context.strings.optional),
         const SizedBox(height: 10),
         TextField(
           controller: _notesController,
@@ -462,7 +481,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           minLines: 4,
           textInputAction: TextInputAction.newline,
           decoration: InputDecoration(
-            hintText: "Describe any concerns or symptoms",
+            hintText: context.strings.describeConcernsOrSymptoms,
             hintStyle: TextStyle(
               color: Colors.grey.shade500,
               fontWeight: FontWeight.w500,
@@ -488,7 +507,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle("Attachments", "Optional"),
+        _buildSectionTitle(context.strings.attachments, context.strings.optional),
         const SizedBox(height: 10),
         ..._attachments.map(_buildAttachmentTile),
         GestureDetector(
@@ -513,7 +532,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  "Upload files",
+                  context.strings.uploadFilesText,
                   style: TextStyle(
                     color: context.appMutedText,
                     fontWeight: FontWeight.w600,
@@ -612,7 +631,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         padding: const EdgeInsets.symmetric(vertical: 20),
         child: Center(
           child: Text(
-            "No slots available for this date",
+            context.strings.noSlotsAvailable,
             style: TextStyle(color: context.appMutedText),
           ),
         ),
@@ -622,17 +641,17 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     return Column(
       children: [
         _slotCategory(
-          "Morning Slots",
+          context.strings.morningSlots,
           morning.map((e) => e.time ?? "").toList(),
           Icons.wb_sunny_outlined,
         ),
         _slotCategory(
-          "Afternoon Slots",
+          context.strings.afternoonSlots,
           afternoon.map((e) => e.time ?? "").toList(),
           Icons.light_mode_outlined,
         ),
         _slotCategory(
-          "Evening Slots",
+          context.strings.eveningSlots,
           evening.map((e) => e.time ?? "").toList(),
           Icons.nights_stay_outlined,
         ),
@@ -702,7 +721,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Select Pet",
+            context.strings.selectPetForBooking,
             style: TextStyle(
               color: context.appText,
               fontSize: 18,
@@ -711,7 +730,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            "Choose a registered pet or book by species.",
+            context.strings.choosePetOrSpecies,
             style: TextStyle(color: context.appMutedText, fontSize: 13),
           ),
           const SizedBox(height: 10),
@@ -743,9 +762,11 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      _selectedPet != null
-                          ? "Booking for ${_selectedPet!.profile?.name ?? 'your pet'}"
-                          : "Booking for ${_selectedSpecies?.nameEn ?? 'selected species'}",
+                      context.strings.bookingFor(
+                        _selectedPet != null
+                            ? (_selectedPet!.profile?.name ?? context.strings.petFallback)
+                            : (_selectedSpecies?.nameEn ?? context.strings.bySpecies),
+                      ),
                       style: const TextStyle(
                         color: AppColors.primary,
                         fontWeight: FontWeight.w600,
@@ -807,7 +828,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    profile?.name ?? "Unnamed",
+                    profile?.name ?? context.strings.unnamedPet,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -818,7 +839,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    profile?.speciesName ?? "Pet",
+                    profile?.speciesName ?? context.strings.petFallback,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -868,7 +889,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
               ),
             ),
             Text(
-              _selectedSpecies?.nameEn ?? "Other",
+              _selectedSpecies?.nameEn ?? context.strings.other,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
@@ -878,7 +899,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
               ),
             ),
             Text(
-              "By species",
+              context.strings.bySpecies,
               style: TextStyle(
                 fontSize: 8,
                 color: isSelected ? Colors.white70 : context.appMutedText,
@@ -931,7 +952,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                           ),
                           const SizedBox(height: 18),
                           Text(
-                            "Book By Species",
+                            context.strings.bookBySpecies,
                             style: TextStyle(
                               color: context.appText,
                               fontSize: 18,
@@ -940,7 +961,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            "Select the species for which you want to book an appointment.",
+                            context.strings.selectSpeciesForBooking,
                             style: TextStyle(
                               color: context.appMutedText,
                               fontSize: 13,
@@ -959,7 +980,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                               child: Padding(
                                 padding: const EdgeInsets.all(20.0),
                                 child: Text(
-                                  "No species found.",
+                                  context.strings.noSpeciesFound,
                                   style: TextStyle(color: context.appMutedText),
                                 ),
                               ),
@@ -1061,31 +1082,406 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         first.day == second.day;
   }
 
-  String _weekdayLabel(DateTime date) {
-    const labels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  String _weekdayLabel(DateTime date, BuildContext context) {
+    const enLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const hiLabels = ["रवि", "सोम", "मंगल", "बुध", "गुरु", "शुक्र", "शनि"];
+    final isHi = context.strings.languageCode == 'hi' || AppStrings.currentLanguage == 'hi';
+    final labels = isHi ? hiLabels : enLabels;
     return labels[date.weekday % 7];
   }
 
-  String _monthLabel(DateTime date) {
-    const months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
+  String _monthLabel(DateTime date, BuildContext context) {
+    const enMonths = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
     ];
-    return "${months[date.month - 1]} ${date.year}";
+    const hiMonths = [
+      "जनवरी", "फ़रवरी", "मार्च", "अप्रैल", "मई", "जून",
+      "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"
+    ];
+    final isHi = context.strings.languageCode == 'hi' || AppStrings.currentLanguage == 'hi';
+    final monthName = isHi ? hiMonths[date.month - 1] : enMonths[date.month - 1];
+    return "$monthName ${date.year}";
+  }
+
+  String _getLocalizedSymptomName(BuildContext context, String? enName) {
+    if (enName == null || enName.isEmpty) return '';
+    final isHindi = context.strings.languageCode == 'hi' || AppStrings.currentLanguage == 'hi';
+    if (!isHindi) return enName;
+
+    const map = {
+      "Diarrhea": "दस्त",
+      "Lethargy": "सुस्ती",
+      "Loss of Appetite": "भूख में कमी",
+      "Complete Loss of Appetite": "भूख पूरी तरह खत्म",
+      "Increased Appetite": "भूख बढ़ना",
+      "Increased Thirst": "प्यास बढ़ना",
+      "Decreased Water Intake": "कम पानी पीना",
+      "Vomiting": "उल्टी",
+      "Repeated Vomiting": "बार-बार उल्टी",
+      "Hairball Regurgitation or Vomiting": "हेयरबॉल या उल्टी",
+      "Blood in Vomit": "उल्टी में खून",
+      "Bloody Diarrhea": "खूनी दस्त",
+      "Mucus in Stool": "मल में बलगम",
+      "Constipation": "कब्ज",
+      "Fever": "बुखार",
+      "Coughing": "खांसी",
+      "Sneezing": "छींकना",
+      "Itching": "खुजली",
+      "Limping": "लंगड़ाना",
+      "Eye Discharge": "आंखों से स्राव",
+      "Nasal Discharge": "नाक से स्राव",
+      "Ear Infection": "कान में संक्रमण",
+      "Skin Rash": "त्वचा पर चकत्ते",
+    };
+
+    return map[enName] ?? enName;
   }
 
   bool get _canProceed {
     return selectedTime != null &&
         (_selectedPet != null || _selectedSpecies != null);
+  }
+}
+
+class TelemedicineConsentBottomSheet extends StatefulWidget {
+  final VoidCallback onAccept;
+
+  const TelemedicineConsentBottomSheet({
+    super.key,
+    required this.onAccept,
+  });
+
+  @override
+  State<TelemedicineConsentBottomSheet> createState() =>
+      _TelemedicineConsentBottomSheetState();
+}
+
+class _TelemedicineConsentBottomSheetState
+    extends State<TelemedicineConsentBottomSheet> {
+  bool _isConsentChecked = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: context.appSurface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      padding: EdgeInsets.only(
+        left: 20,
+        right: 20,
+        top: 20,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header: Title & Close Button
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                context.strings.telemedicineConsultation,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: context.appText,
+                ),
+              ),
+              IconButton(
+                icon: Icon(Icons.close, color: context.appMutedText),
+                onPressed: () => Navigator.pop(context),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Illustration Banner
+          _buildIllustrationBanner(context),
+          const SizedBox(height: 16),
+
+          // Description Text
+          Text(
+            context.strings.telemedicineDesc,
+            style: TextStyle(
+              fontSize: 13.5,
+              color: context.appMutedText,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // 3 Info Points Container
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: context.isDarkMode
+                  ? context.appSurfaceVariant
+                  : const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: context.appBorder.withValues(alpha: 0.6),
+              ),
+            ),
+            child: Column(
+              children: [
+                _buildInfoRow(
+                  context,
+                  Icons.desktop_windows_outlined,
+                  context.strings.telemedicineInfo1,
+                ),
+                const SizedBox(height: 12),
+                _buildInfoRow(
+                  context,
+                  Icons.description_outlined,
+                  context.strings.telemedicineInfo2,
+                ),
+                const SizedBox(height: 12),
+                _buildInfoRow(
+                  context,
+                  Icons.medical_services_outlined,
+                  context.strings.telemedicineInfo3,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Checkbox Agreement Row
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _isConsentChecked = !_isConsentChecked;
+              });
+            },
+            behavior: HitTestBehavior.opaque,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  width: 22,
+                  height: 22,
+                  decoration: BoxDecoration(
+                    color: _isConsentChecked
+                        ? AppColors.primary
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: _isConsentChecked
+                          ? AppColors.primary
+                          : context.appBorder,
+                      width: 1.5,
+                    ),
+                  ),
+                  child: _isConsentChecked
+                      ? const Icon(Icons.check, size: 16, color: Colors.white)
+                      : null,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    context.strings.telemedicineAgree,
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w600,
+                      color: context.appText,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Action Button
+          AppButton(
+            text: context.strings.acceptAndContinue,
+            textColor: _isConsentChecked ? Colors.white : Colors.grey,
+            color: _isConsentChecked
+                ? AppColors.primary
+                : (context.isDarkMode
+                    ? const Color(0xFF1E293B)
+                    : Colors.grey.shade300),
+            onPressed: _isConsentChecked
+                ? () {
+                    Navigator.pop(context);
+                    widget.onAccept();
+                  }
+                : null,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIllustrationBanner(BuildContext context) {
+    return Container(
+      height: 130,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: context.isDarkMode
+              ? [const Color(0xFF0C2B64), const Color(0xFF1D4ED8)]
+              : [const Color(0xFFDBEAFE), const Color(0xFF93C5FD)],
+        ),
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Background soft glow
+          Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.blue.withValues(alpha: context.isDarkMode ? 0.3 : 0.4),
+            ),
+          ),
+          // Doctor & Pets center avatars
+          Positioned(
+            bottom: 10,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                // Dog avatar
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: context.isDarkMode ? const Color(0xFF1E293B) : Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.15),
+                        blurRadius: 4,
+                      ),
+                    ],
+                  ),
+                  child: const Center(
+                    child: Text("🐶", style: TextStyle(fontSize: 20)),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                // Vet Doctor avatar
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: context.isDarkMode ? const Color(0xFF1E3A8A) : Colors.white,
+                    border: Border.all(color: AppColors.primary, width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                      ),
+                    ],
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.person, size: 36, color: AppColors.primary),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                // Cat/Puppy avatar
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: context.isDarkMode ? const Color(0xFF1E293B) : Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.15),
+                        blurRadius: 4,
+                      ),
+                    ],
+                  ),
+                  child: const Center(
+                    child: Text("🐱", style: TextStyle(fontSize: 20)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Left chat badge
+          Positioned(
+            top: 16,
+            left: 32,
+            child: Container(
+              padding: const EdgeInsets.all(7),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2563EB),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 1.5),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 4,
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.chat_bubble_outline_rounded,
+                color: Colors.white,
+                size: 15,
+              ),
+            ),
+          ),
+          // Right video call badge
+          Positioned(
+            top: 16,
+            right: 32,
+            child: Container(
+              padding: const EdgeInsets.all(7),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2563EB),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 1.5),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 4,
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.videocam_rounded,
+                color: Colors.white,
+                size: 16,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(BuildContext context, IconData icon, String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 20, color: context.appMutedText),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 12.5,
+              color: context.appText,
+              height: 1.35,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'offline_data_manager.dart';
+import '../utils/doctor_utils.dart';
 import '../../features/auth/data/models/dashboard_response_model.dart';
 
 /// Example usage of the Offline Data System for VetNow App
@@ -358,7 +359,7 @@ class _OfflineDataExampleState extends State<OfflineDataExample> {
           const SizedBox(height: 8),
           Text('Time: ${appointment.appointmentTime ?? ''}'),
           Text('Pet: ${appointment.pet?.name ?? ''}'),
-          Text('Doctor: ${appointment.doctor?.fullName ?? ''}'),
+          Text('Doctor: ${DoctorUtils.formatDoctorName(appointment.doctor?.fullName)}'),
           if (appointment.notes?.isNotEmpty == true)
             Text('Notes: ${appointment.notes}'),
         ],

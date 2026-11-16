@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:vetnow_user/features/auth/presentation/screens/create_profile_screen.dart';
 import 'package:vetnow_user/features/auth/presentation/screens/dashboard_screen.dart';
 import 'package:vetnow_user/features/auth/presentation/screens/main_flow_controller.dart';
+import 'package:vetnow_user/features/auth/presentation/screens/medical_consent_screen.dart';
 
 import '../../auth/presentation/screens/sign_in_screen.dart';
 import 'splash_view_model.dart';
@@ -41,20 +42,23 @@ class _AppLauncherState extends State<AppLauncher> {
           );
         }
 
-        print(destination);
+        print("AppLauncher Destination: $destination");
         switch (destination) {
           case AppStartDestination.login:
             return SignInScreen();
-          case AppStartDestination.userProfile:
-            return MainFlowController();
+          case AppStartDestination.consent:
+            return const MedicalConsentScreen();
+          case AppStartDestination.createProfile:
+            return const CreateProfileScreen();
+          case AppStartDestination.addPet:
+            return const MainFlowController(initialFlowIndex: 0);
+          case AppStartDestination.petSuccess:
+            return const MainFlowController(initialFlowIndex: 2);
           case AppStartDestination.home:
-            return MainDashboard();
-          // case AppStartDestination.petProfile:
-          //   return MainDashboard();
-          default:
-            return CreateProfileScreen();
+            return const MainDashboard();
         }
       },
     );
   }
 }
+
